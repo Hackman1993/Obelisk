@@ -3,7 +3,7 @@
 //
 
 #include "http_server.h"
-namespace obelist {
+namespace obelisk {
 
 
   http_server::http_server(const std::string &address, unsigned short port, const std::string &webroot, unsigned int thread) {

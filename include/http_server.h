@@ -7,7 +7,7 @@
 
 
 #include <string>
-namespace obelist{
+namespace obelisk{
   class http_server {
   public:
     http_server(const std::string& address, unsigned short port, const std::string& webroot, unsigned int thread);
