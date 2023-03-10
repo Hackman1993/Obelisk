@@ -12,6 +12,7 @@
 
 namespace obelisk{
   class http_server;
+  class session_detector;
 
   class virtual_host {
 
@@ -21,12 +22,14 @@ namespace obelisk{
 
     void load_certificate(std::string certificate, std::string private_key);
   private:
-    unsigned short port_;
+    unsigned short port_ = 0;
+    std::string webroot_;
+    virtual_host *next_ = nullptr;
     boost::asio::ssl::context ctx_{boost::asio::ssl::context::tlsv12};
     std::unordered_map<virtual_host_meta, bool, virtual_host_meta> domains_;
-    std::string webroot_;
 
     friend class http_server;
+    friend class session_detector;
   };
 }
 

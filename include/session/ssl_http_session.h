@@ -15,8 +15,7 @@ namespace obelisk {
 
   public:
     // Create the http_session
-    ssl_http_session(boost::beast::tcp_stream&& stream, boost::asio::ssl::context& ctx, boost::beast::flat_buffer&& buffer, std::shared_ptr<std::string const> const& doc_root):
-        http_session_base<ssl_http_session>(std::move(buffer)), stream_(std::move(stream), ctx)
+    ssl_http_session(boost::beast::tcp_stream&& stream, boost::asio::ssl::context& ctx, boost::beast::flat_buffer&& buffer): http_session_base<ssl_http_session>(std::move(buffer)), stream_(std::move(stream), ctx)
     {
     }
 

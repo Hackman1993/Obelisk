@@ -77,14 +77,7 @@ namespace obelisk {
     else
     {
       unsigned port = acceptor->local_endpoint().port();
-      for(auto &host: hosts_)
-      {
-        if(host.port_ != port) continue;
-        std::make_shared<session_detector>(std::move(socket), host.ctx_)->run();
-      }
-
-      // Create the detector http_session and run it
-
+      std::make_shared<session_detector>(std::move(socket), hosts_, port)->run();
     }
     accept_(acceptor);
   }

@@ -28,7 +28,7 @@ namespace obelisk{
 
     boost::asio::io_service ios_;
     std::vector<std::thread> threads_;
-    std::vector<virtual_host> hosts_;
+    virtual_host *hosts_ = nullptr;
     std::vector<std::unique_ptr<boost::asio::ip::tcp::acceptor, void(*)(boost::asio::ip::tcp::acceptor*)>> acceptors_;
   };
 }
