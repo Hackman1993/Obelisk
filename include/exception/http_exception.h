@@ -6,9 +6,10 @@
 #define OBELISK_HTTP_EXCEPTION_H
 
 
+#include "exception_base.h"
 
 namespace obelisk::exception {
-  class http_exception {
+  class http_exception: public exception_base{
 
   };
 }

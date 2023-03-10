@@ -5,8 +5,13 @@
 #ifndef OBELISK_NETWORK_EXCEPTION_H
 #define OBELISK_NETWORK_EXCEPTION_H
 
+#include <string>
+#include "exception_base.h"
+
 namespace obelisk::exception {
-  class network_exception {
+  class network_exception: public exception_base{
+  public:
+    network_exception(std::string what): exception_base(std::move(what)){}
 
   };
 }
