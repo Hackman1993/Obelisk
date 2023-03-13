@@ -24,10 +24,6 @@ namespace obelisk {
   }
   template<class Derived>
   class http_session_base {
-    //std::shared_ptr<std::string const> doc_root_;
-
-    // Access the derived class, this is part of
-    // the Curiously Recurring Template Pattern idiom.
     Derived &derived() {
       return static_cast<Derived &>(*this);
     }
@@ -35,8 +31,6 @@ namespace obelisk {
     static constexpr std::size_t queue_limit = 8; // max responses
     std::vector<boost::beast::http::message_generator> response_queue_;
 
-    // The parser is stored in an optional container so we can
-    // construct it from scratch it at the beginning of each new message.
     boost::optional<boost::beast::http::request_parser<boost::beast::http::string_body>> parser_;
 
   protected:

@@ -9,7 +9,6 @@
 #include <string>
 #include <boost/asio.hpp>
 #include <boost/asio/ssl.hpp>
-#include "virtual_host.h"
 
 namespace obelisk{
   class http_server : public std::enable_shared_from_this<http_server> {
@@ -19,16 +18,17 @@ namespace obelisk{
 
     void run(unsigned int threads);
 
-
+    void load_certificate(std::string certificate_path, std::string private_key_path);
   private:
     void run_();
     void accept_(boost::asio::ip::tcp::acceptor* acceptor);
     void on_accept_(boost::asio::ip::tcp::acceptor* acceptor,  boost::system::error_code ec, boost::asio::ip::tcp::socket socket);
 
 
+
     boost::asio::io_service ios_;
     std::vector<std::thread> threads_;
-    virtual_host *hosts_ = nullptr;
+    boost::asio::ssl::context ssl_context_{boost::asio::ssl::context::tlsv12};
     std::vector<std::unique_ptr<boost::asio::ip::tcp::acceptor, void(*)(boost::asio::ip::tcp::acceptor*)>> acceptors_;
   };
 }
