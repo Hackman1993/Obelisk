@@ -16,10 +16,10 @@ namespace obelisk{
   {
     boost::beast::tcp_stream stream_;
     boost::beast::flat_buffer buffer_;
-    boost::asio::ssl::context& ssl_context_;
+    http_server& server_;
 
   public:
-    session_detector(boost::asio::ip::tcp::socket&& socket, boost::asio::ssl::context& ssl_context): stream_(std::move(socket)), ssl_context_(ssl_context)
+    session_detector(boost::asio::ip::tcp::socket&& socket, http_server& server): stream_(std::move(socket)), server_(server)
     {
     }
 
@@ -41,10 +41,9 @@ namespace obelisk{
       }
       if(result)
       {
-        std::make_shared<ssl_http_session>(std::move(stream_), ssl_context_, std::move(buffer_))->run();
-        return;
+        std::make_shared<ssl_http_session>(std::move(stream_), server_, std::move(buffer_))->run();
       }
-      std::make_shared<plain_http_session>(std::move(stream_), std::move(buffer_))->run();
+      std::make_shared<plain_http_session>(std::move(stream_), server_, std::move(buffer_))->run();
     }
   };
 }

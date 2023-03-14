@@ -76,7 +76,7 @@ namespace obelisk {
     }
     else
     {
-      std::make_shared<session_detector>(std::move(socket), ssl_context_)->run();
+      std::make_shared<session_detector>(std::move(socket), *this)->run();
     }
     accept_(acceptor);
   }

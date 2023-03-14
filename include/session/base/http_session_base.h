@@ -9,6 +9,9 @@
 #include "../plain_websocket_session.h"
 #include "../ssl_websocket_session.h"
 
+#include "../../http_server.h"
+#include <boost/url.hpp>
+#include <boost/algorithm/string.hpp>
 namespace obelisk {
   template<class Body, class Allocator>
   void make_websocket_session(boost::beast::tcp_stream stream, boost::beast::http::request<Body, boost::beast::http::basic_fields<Allocator>> req)
@@ -24,23 +27,21 @@ namespace obelisk {
   }
   template<class Derived>
   class http_session_base {
+  protected:
     Derived &derived() {
       return static_cast<Derived &>(*this);
     }
 
-    static constexpr std::size_t queue_limit = 8; // max responses
+    http_server& server_;
+    static constexpr std::size_t queue_limit = 8;
     std::vector<boost::beast::http::message_generator> response_queue_;
-
     boost::optional<boost::beast::http::request_parser<boost::beast::http::string_body>> parser_;
 
   protected:
     boost::beast::flat_buffer buffer_;
 
   public:
-    // Construct the session
-    http_session_base(boost::beast::flat_buffer buffer): buffer_(std::move(buffer)) {}
-
-
+    http_session_base(boost::beast::flat_buffer buffer, http_server& server): buffer_(std::move(buffer)), server_(server) {}
 
     void do_read() {
       parser_.emplace();
@@ -58,35 +59,20 @@ namespace obelisk {
       if (boost::beast::websocket::is_upgrade(parser_->get())) {
         boost::beast::get_lowest_layer(derived().stream()).expires_never();
 
-        // Create a websocket session, transferring ownership
-        // of both the socket and the HTTP request.
-        // TODO: Uncomment below
-
         return make_websocket_session(derived().release_stream(), parser_->release());
       }
+      queue_write(handle_request(std::move(parser_->release())));
 
-      // Send the response
-      // TODO: Uncomment Follows
-      queue_write(handle_request(parser_->release()));
-
-      // If we aren't at the queue limit, try to pipeline another request
       if (response_queue_.size() < queue_limit) do_read();
     }
 
     void queue_write(boost::beast::http::message_generator response) {
-      // Allocate and store the work
       response_queue_.push_back(std::move(response));
 
-      // If there was no previous work, start the write
-      // loop
       if (response_queue_.size() == 1)
         do_write();
     }
 
-    // Called to start/continue the write-loop. Should not be called when
-    // write_loop is already active.
-    //
-    // Returns `true` if the caller may initiate a new read
     bool do_write() {
       bool const was_full = response_queue_.size() == queue_limit;
 
@@ -108,123 +94,86 @@ namespace obelisk {
         throw exception::network_exception{ec.what()};
 
       if (!keep_alive) {
-        // This means we should close the connection, usually because
-        // the response indicated the "Connection: close" semantic.
         return derived().do_eof();
       }
 
-      // Inform the queue that a write completed
       if (do_write()) {
-        // Read another request
         do_read();
       }
     }
 
     template<class BodyType>
-    boost::beast::http::message_generator handle_request(boost::beast::http::request<BodyType>&& req)
-    {
-      boost::beast::http::request<boost::beast::http::string_body> request;
-      for(auto &data: req)
-      {
-        std::cout << data.name_string() << ":" << data.value() << std::endl;
+    boost::beast::http::message_generator pre_response(boost::beast::http::request<BodyType>& req){
+      if( req.target().empty() || req.target()[0] != '/' || req.target().find("..") != boost::beast::string_view::npos)
+        return string_response(400, "Illegal request-target", req);
+
+
+      std::string target_raw = req.target();
+      std::string target;
+      std::string string_params;
+      auto splitor = target_raw.find_first_of('?');
+      if(splitor == std::string::npos)
+        target = target_raw;
+      else{
+        target = target_raw.substr(0, splitor);
+        string_params = target_raw.substr(splitor+1, target_raw.size()-1);
       }
-      std::cout<< req.at("user-agent") << std::endl;
-      std::cout << req.body() << std::endl;
-      std::cout<< req.target() << std::endl;
-      std::cout << req.body() << std::endl;
 
-      // Returns a bad request response
-      auto const bad_request =
-          [&req](boost::beast::string_view why)
-          {
-            boost::beast::http::response<boost::beast::http::string_body> res{boost::beast::http::status::bad_request, req.version()};
-            res.set(boost::beast::http::field::server, BOOST_BEAST_VERSION_STRING);
-            res.set(boost::beast::http::field::content_type, "text/html");
-            res.keep_alive(req.keep_alive());
-            res.body() = std::string(why);
-            res.prepare_payload();
-            return res;
-          };
+      std::vector<std::string> split_string;
 
-      // Returns a not found response
-      auto const not_found =
-          [&req](boost::beast::string_view target)
-          {
-            boost::beast::http::response<boost::beast::http::string_body> res{boost::beast::http::status::not_found, req.version()};
-            res.set(boost::beast::http::field::server, BOOST_BEAST_VERSION_STRING);
-            res.set(boost::beast::http::field::content_type, "text/html");
-            res.keep_alive(req.keep_alive());
-            res.body() = "The resource '" + std::string(target) + "' was not found.";
-            res.prepare_payload();
-            return res;
-          };
+      boost::split(split_string, req.target(), boost::is_any_of("?"), boost::token_compress_on);
 
-      // Returns a server error response
-      auto const server_error =
-          [&req](boost::beast::string_view what)
-          {
-            boost::beast::http::response<boost::beast::http::string_body> res{boost::beast::http::status::internal_server_error, req.version()};
-            res.set(boost::beast::http::field::server, BOOST_BEAST_VERSION_STRING);
-            res.set(boost::beast::http::field::content_type, "text/html");
-            res.keep_alive(req.keep_alive());
-            res.body() = "An error occurred: '" + std::string(what) + "'";
-            res.prepare_payload();
-            return res;
-          };
 
-      // Make sure we can handle the method
-      if( req.method() != boost::beast::http::verb::get &&
-          req.method() != boost::beast::http::verb::head)
-        return bad_request("Unknown HTTP-method");
+      std::string path = std::string("./webroot").append( req.target());
+      if(req.target().back() == '/') path.append("index.html");
 
-      // Request path must be absolute and not contain "..".
-      if( req.target().empty() ||
-          req.target()[0] != '/' ||
-          req.target().find("..") != boost::beast::string_view::npos)
-        return bad_request("Illegal request-target");
-
-      // Build the path to the requested file
-//      std::string path = path_cat(doc_root, req.target());
-//      if(req.target().back() == '/')
-//        path.append("index.html");
-
-      // Attempt to open the file
       boost::beast::error_code ec;
       boost::beast::http::file_body::value_type body;
-//      body.open(path.c_str(), boost::beast::file_mode::scan, ec);
-
-      // Handle the case where the file doesn't exist
-      if(ec == boost::beast::errc::no_such_file_or_directory)
-        return not_found(req.target());
-
-      // Handle an unknown error
+      body.open(path.c_str(), boost::beast::file_mode::scan, ec);
       if(ec)
-        return server_error(ec.message());
+        return string_response(500, ec.message(), req);
 
       // Cache the size since we need it after the move
       auto const size = body.size();
 
-      // Respond to HEAD request
       if(req.method() == boost::beast::http::verb::head)
       {
         boost::beast::http::response<boost::beast::http::empty_body> res{boost::beast::http::status::ok, req.version()};
         res.set(boost::beast::http::field::server, BOOST_BEAST_VERSION_STRING);
-        //res.set(boost::beast::http::field::content_type, mime_type(path));
+        res.set(boost::beast::http::field::content_type, "text/html");
         res.content_length(size);
         res.keep_alive(req.keep_alive());
         return res;
       }
 
-      return not_found(req.target());
-      // Respond to GET request
-//      boost::beast::http::response<boost::beast::http::file_body> res{
-//          std::piecewise_construct,
-//          std::make_tuple(std::move(body)),
-//          std::make_tuple(boost::beast::http::status::ok, req.version())};
-//      res.set(boost::beast::http::field::server, BOOST_BEAST_VERSION_STRING);
-//      // res.set(boost::beast::http::field::content_type, mime_type(path));
-//      res.content_length(size);
-//      res.keep_alive(req.keep_alive());
+      boost::beast::http::response<boost::beast::http::file_body> res{ std::piecewise_construct, std::make_tuple(std::move(body)),
+          std::make_tuple(boost::beast::http::status::ok, req.version())};
+      res.set(boost::beast::http::field::server, BOOST_BEAST_VERSION_STRING);
+      // res.set(boost::beast::http::field::content_type, mime_type(path));
+      res.content_length(size);
+      res.keep_alive(req.keep_alive());
+      return res;
+    }
+
+    template<class BodyType>
+    boost::beast::http::message_generator string_response(unsigned int status_code, boost::beast::string_view why, boost::beast::http::request<BodyType>& req){
+      boost::beast::http::response<boost::beast::http::string_body> res{(boost::beast::http::status)status_code, req.version()};
+      res.set(boost::beast::http::field::server, BOOST_BEAST_VERSION_STRING);
+      res.set(boost::beast::http::field::content_type, "text/html");
+      res.keep_alive(req.keep_alive());
+      res.body() = std::string(why);
+      res.prepare_payload();
+      return res;
+    }
+    template<class BodyType>
+    boost::beast::http::message_generator handle_request(boost::beast::http::request<BodyType> req)
+    {
+      for(auto &data: req)
+      {
+        std::cout << data.name_string() << ":" << data.value() << std::endl;
+      }
+      return pre_response(req);
+
     }
   };
 }

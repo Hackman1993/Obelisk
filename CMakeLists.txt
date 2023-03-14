@@ -7,14 +7,14 @@ file(GLOB_RECURSE CPP_TESTS tests/*.cpp)
 
 set(CMAKE_CXX_STANDARD 23)
 
-find_package(Boost REQUIRED COMPONENTS unit_test_framework)
+find_package(Boost REQUIRED COMPONENTS unit_test_framework url)
 find_package(OpenSSL REQUIRED)
 
 include_directories(${Boost_INCLUDE_DIRS})
 include_directories(include)
 
 add_executable(Obelisk ${CPP_HEADERS} ${CPP_SOURCES})
-target_link_libraries(Obelisk PRIVATE OpenSSL::SSL OpenSSL::Crypto)
+target_link_libraries(Obelisk PRIVATE OpenSSL::SSL OpenSSL::Crypto Boost::url)
 
 target_compile_options(Obelisk
         PRIVATE

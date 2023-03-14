@@ -19,12 +19,15 @@ namespace obelisk{
     void run(unsigned int threads);
 
     void load_certificate(std::string certificate_path, std::string private_key_path);
+
+    boost::asio::ssl::context& ssl_context()
+    {
+      return ssl_context_;
+    }
   private:
     void run_();
     void accept_(boost::asio::ip::tcp::acceptor* acceptor);
     void on_accept_(boost::asio::ip::tcp::acceptor* acceptor,  boost::system::error_code ec, boost::asio::ip::tcp::socket socket);
-
-
 
     boost::asio::io_service ios_;
     std::vector<std::thread> threads_;

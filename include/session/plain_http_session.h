@@ -14,7 +14,8 @@ namespace obelisk{
     boost::beast::tcp_stream stream_;
   public:
     // Create the session
-    plain_http_session(boost::beast::tcp_stream&& stream, boost::beast::flat_buffer&& buffer): http_session_base<plain_http_session>(std::move(buffer)), stream_(std::move(stream))
+    plain_http_session(boost::beast::tcp_stream&& stream, http_server& server, boost::beast::flat_buffer&& buffer):
+        http_session_base<plain_http_session>(std::move(buffer), server), stream_(std::move(stream))
     {
     }
 
