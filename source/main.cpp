@@ -1,7 +1,12 @@
 #include <iostream>
 #include "route/router.h"
 int main() {
-  obelisk::router_item item("/route/{param1}/{param2?}/bacba");
+  obelisk::router_item item("/route/{param1}/{param2}/bacba");
+  std::string_view str = "/route/dga2/param2/bacba";
+  std::vector<std::string> splited;
+  boost::algorithm::split(splited,str,boost::is_any_of("/"),boost::algorithm::token_compress_on);
+  erase_if(splited,[](std::string &s){ return s.empty();});
+  auto test = item.parse(splited);
 
   return 0;
 }

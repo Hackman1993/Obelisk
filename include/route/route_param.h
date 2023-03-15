@@ -15,12 +15,12 @@ namespace obelisk {
 
   struct router_param {
     std::string name_;
-    bool required_ = true;
+    bool static_ = false;
   };
 
   using boost::fusion::operator <<;
 } // obelisk
 
-BOOST_FUSION_ADAPT_STRUCT(obelisk::router_param, name_, required_);
+BOOST_FUSION_ADAPT_STRUCT(obelisk::router_param, name_, static_);
 
 #endif //OBELISK_ROUTE_PARAM_H
