@@ -11,6 +11,27 @@ namespace obelisk{
   class http_request{
   public:
 
+    boost::beast::http::verb method()
+    {
+      return method_;
+    }
+
+    bool keep_alive(){
+      return keep_alive_;
+    }
+
+    unsigned int version(){
+      return version_;
+    }
+
+    std::string_view target_path(){
+      return target_path_;
+    }
+
+    std::unordered_map<std::string, std::string>& route_params(){
+      return route_params_;
+    }
+
     template<class BodyType>
     explicit http_request(boost::beast::http::request<BodyType>& request)
     {
@@ -24,13 +45,19 @@ namespace obelisk{
         string_params = target_raw.substr(splitor+1, target_raw.size()-1);
       }
       keep_alive_ = request.keep_alive();
-      method_ = request.method_string();
+      method_ = request.method();
+      version_ = request.version();
+
     }
   protected:
     bool keep_alive_ = false;
-    std::string method_;
+    boost::beast::http::verb method_;
     std::string target_path_;
     http_header headers_;
+    unsigned int version_;
+
+    std::unordered_map<std::string, std::string> route_params_;
+    friend class route_item;
   };
 }
 

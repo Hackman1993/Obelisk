@@ -9,6 +9,7 @@
 #include <string>
 #include <boost/asio.hpp>
 #include <boost/asio/ssl.hpp>
+#include "route/http_router.h"
 
 namespace obelisk{
   class http_server : public std::enable_shared_from_this<http_server> {
@@ -17,7 +18,13 @@ namespace obelisk{
     void listen(const std::string& address, unsigned short port);
 
     void run(unsigned int threads);
+    http_router& router(){
+      return router_;
+    }
 
+    route_item& route(std::string_view route, std::function<std::unique_ptr<http_response>(http_request&)> handle){
+      return router_.add_router(route,handle);
+    }
 
   private:
     void run_();
@@ -26,6 +33,7 @@ namespace obelisk{
 
     boost::asio::io_service ios_;
     std::vector<std::thread> threads_;
+    http_router router_;
     std::vector<std::unique_ptr<boost::asio::ip::tcp::acceptor, void(*)(boost::asio::ip::tcp::acceptor*)>> acceptors_;
   };
 }

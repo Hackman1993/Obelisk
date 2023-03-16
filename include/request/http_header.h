@@ -10,7 +10,7 @@
 
 namespace obelisk{
   struct header_key_hash_{
-    std::size_t operator()(const std::string& key){
+    std::size_t operator()(const std::string& key) const{
       std::size_t h = 0;
       for(char c: key){
         h = (h << 1) ^ std::tolower(c);
@@ -20,7 +20,7 @@ namespace obelisk{
   };
 
   struct header_key_iequal_ {
-    bool operator()(const std::string& s1, const std::string& s2){
+    bool operator()(const std::string& s1, const std::string& s2) const{
       if(s1.size()!=s2.size()) return false;
       return boost::algorithm::iequals(s1, s2);
     }

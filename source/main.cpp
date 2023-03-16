@@ -1,19 +1,33 @@
 #include <iostream>
-#include "route/router.h"
+#include <http_server.h>
+#include "route/http_router.h"
+
+class Controller{
+public:
+  static std::unique_ptr<obelisk::http_response> test(obelisk::http_request &request){
+    for(auto & rou: request.route_params()){
+      std::cout << rou.first <<":" << rou.second << std::endl;
+    }
+    return std::make_unique<obelisk::string_response>(200, "HDKFHA");
+  }
+};
 int main() {
-  obelisk::router_item item("/route/{param1}/{param2}/bacba");
-  std::string_view str = "/route/dga2/param2/bacba";
-  std::vector<std::string> splited;
-  boost::algorithm::split(splited,str,boost::is_any_of("/"),boost::algorithm::token_compress_on);
-  erase_if(splited,[](std::string &s){ return s.empty();});
-  auto test = item.parse(splited);
+//  obelisk::route_item item("/route/{param1}/{param2}/bacba");
+//  std::string_view str = "/route/dga2/param2/bacba";
+
+  obelisk::http_server server("0.0.0.0", 8082);
+  server.route("/api/{name?}", std::bind(&Controller::test, std::placeholders::_1)).add_method(boost::beast::http::verb::get);
+
+
+  server.listen("0.0.0.0", 8083);
+  server.run(1);
 
   return 0;
 }
 
 
 
-//#include <http_server.h>
+
 //
 //int main(int argc, char* argv[])
 //{

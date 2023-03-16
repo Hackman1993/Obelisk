@@ -45,7 +45,7 @@ namespace obelisk{
 
       if (boost::beast::websocket::is_upgrade(parser_->get())) {
         boost::beast::get_lowest_layer(stream_).expires_never();
-        std::make_shared<plain_websocket_session>(std::move(stream_));
+        std::make_shared<plain_websocket_session>(std::move(stream_))->run(parser_->release());
       }
       queue_write(handle_request(std::move(parser_->release())));
       if (response_queue_.size() < queue_limit) do_read();
@@ -98,6 +98,10 @@ namespace obelisk{
         return string_response(400, "Illegal request-target", req.version(), req.keep_alive());
 
       http_request friendly_request(req);
+      auto result = server_.router().handle(friendly_request);
+      if(result){
+        return *result;
+      }
 
       return string_response(404, "Not Found!", req.version(), req.keep_alive());
     }

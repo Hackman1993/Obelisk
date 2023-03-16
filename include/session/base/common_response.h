@@ -18,6 +18,15 @@ namespace obelisk{
     res.prepare_payload();
     return res;
   }
+
+  boost::beast::http::message_generator empty_response(unsigned int status_code, unsigned int version, bool keep_alive){
+    boost::beast::http::response<boost::beast::http::empty_body> res{(boost::beast::http::status)status_code, version};
+    res.set(boost::beast::http::field::server, "Obelisk/1.0.0");
+    res.set(boost::beast::http::field::content_type, "text/html");
+    res.keep_alive(keep_alive);
+    res.prepare_payload();
+    return res;
+  }
 }
 
 #endif //OBELISK_COMMON_RESPONSE_H
