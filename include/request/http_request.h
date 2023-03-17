@@ -37,6 +37,7 @@ namespace obelisk{
     {
       std::string target_raw = request.target();
       std::string string_params;
+
       auto splitor = target_raw.find_first_of('?');
       if(splitor == std::string::npos)
         target_path_ = target_raw;

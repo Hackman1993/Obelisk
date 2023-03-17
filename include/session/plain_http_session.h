@@ -18,7 +18,7 @@ namespace obelisk{
     boost::beast::flat_buffer buffer_;
     static constexpr std::size_t queue_limit = 8;
     std::vector<boost::beast::http::message_generator> response_queue_;
-    boost::optional<boost::beast::http::request_parser<boost::beast::http::string_body>> parser_;
+    boost::optional<boost::beast::http::request_parser<boost::beast::http::dynamic_body>> parser_;
   public:
     // Create the session
     plain_http_session(boost::asio::ip::tcp::socket&& socket, http_server& server): stream_(std::move(socket)), server_(server){
@@ -34,28 +34,31 @@ namespace obelisk{
 
     void do_read() {
       parser_.emplace();
-      parser_->body_limit(10000);
+      parser_->body_limit(10*1024*1024);
       boost::beast::http::async_read(stream_, buffer_, *parser_, boost::beast::bind_front_handler(&plain_http_session::on_read, shared_from_this()));
     }
 
     void on_read(boost::beast::error_code ec, std::size_t bytes_transferred) {
       boost::ignore_unused(bytes_transferred);
 
-      if (ec) return do_eof();
-
-      if (boost::beast::websocket::is_upgrade(parser_->get())) {
-        boost::beast::get_lowest_layer(stream_).expires_never();
-        std::make_shared<plain_websocket_session>(std::move(stream_))->run(parser_->release());
+      if (ec) {
+        std::cout << ec.what() <<ec.value() << std::endl;
+        return do_eof();
+      }else{
+        if (boost::beast::websocket::is_upgrade(parser_->get())) {
+          boost::beast::get_lowest_layer(stream_).expires_never();
+          std::make_shared<plain_websocket_session>(std::move(stream_))->run(parser_->release());
+        }
+        queue_write(handle_request(std::move(parser_->release())));
+        if (response_queue_.size() < queue_limit) do_read();
       }
-      queue_write(handle_request(std::move(parser_->release())));
-      if (response_queue_.size() < queue_limit) do_read();
     }
 
     void do_eof() {
       // TODO: Which Is Better
-      stream_.socket().close();
-      // boost::beast::error_code ec;
-      // stream_.socket().shutdown(boost::asio::ip::tcp::socket::shutdown_send, ec);
+      //stream_.socket().close();
+       boost::beast::error_code ec;
+       stream_.socket().shutdown(boost::asio::ip::tcp::socket::shutdown_send, ec);
     }
 
     void queue_write(boost::beast::http::message_generator response) {
@@ -98,10 +101,12 @@ namespace obelisk{
         return string_response(400, "Illegal request-target", req.version(), req.keep_alive());
 
       http_request friendly_request(req);
-      auto result = server_.router().handle(friendly_request);
-      if(result){
-        return *result;
+      for(auto & item : server_.middlewares()){
+        auto result = item.handle(friendly_request);
+        if(result) return *result;
       }
+      auto result = server_.router().handle(friendly_request);
+      if(result) return *result;
 
       return string_response(404, "Not Found!", req.version(), req.keep_alive());
     }

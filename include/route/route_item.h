@@ -14,6 +14,7 @@
 #include "request/http_response.h"
 #include "request/http_request.h"
 #include "utils/url/relative_url.h"
+#include "middleware/middleware_trigger.h"
 
 namespace obelisk {
 
@@ -23,7 +24,7 @@ namespace obelisk {
 
   public:
 
-    route_item(std::string_view path, const std::function<std::unique_ptr<http_response>(http_request&)>& handler): handler_(handler){
+    route_item(std::string_view path, std::function<std::unique_ptr<http_response>(http_request&)>  handler): handler_(std::move(handler)){
       std::vector<std::string> splited = obelisk::utils::relative_url::split(path);
       auto router_param_parser = rule<class route_parser,router_param>{"RouterParam"} = (("{" > (+~char_("{}/") >> attr(false)) >  "}")|(+~char_("/") >> attr(true))) ;
       for(auto &item: splited){
@@ -68,6 +69,16 @@ namespace obelisk {
     }
 
 
+    route_item& middleware(std::string_view params, middleware_callback trigger){
+      middlewares_.emplace_back(params, std::move(trigger));
+      return *this;
+    }
+
+    std::vector<middleware_trigger>& get_middlewares()
+    {
+      return middlewares_;
+    }
+
 
   protected:
     std::regex address_;
@@ -75,6 +86,7 @@ namespace obelisk {
     std::vector<std::string> const_str_;
     std::unordered_map<boost::beast::http::verb, bool> available_method_;
     std::function<std::unique_ptr<http_response>(http_request&)> handler_;
+    std::vector<middleware_trigger> middlewares_;
     bool any_match_ = false;
   };
 

@@ -10,6 +10,8 @@
 #include <boost/asio.hpp>
 #include <boost/asio/ssl.hpp>
 #include "route/http_router.h"
+#include "middleware/auth_middleware.h"
+#include "middleware/middleware_trigger.h"
 
 namespace obelisk{
   class http_server : public std::enable_shared_from_this<http_server> {
@@ -22,18 +24,27 @@ namespace obelisk{
       return router_;
     }
 
-    route_item& route(std::string_view route, std::function<std::unique_ptr<http_response>(http_request&)> handle){
+    route_item& route(std::string_view route,const std::function<std::unique_ptr<http_response>(http_request&)>& handle){
       return router_.add_router(route,handle);
     }
 
-  private:
+    virtual void add_default_middlewares(){
+      middlewares_.emplace_back("", &auth_middleware::handle);
+    }
+
+    std::vector<middleware_trigger>& middlewares(){
+      return middlewares_;
+    }
+
+  protected:
     void run_();
     void accept_(boost::asio::ip::tcp::acceptor* acceptor);
     void on_accept_(boost::asio::ip::tcp::acceptor* acceptor,  boost::system::error_code ec, boost::asio::ip::tcp::socket socket);
 
+    http_router router_;
     boost::asio::io_service ios_;
     std::vector<std::thread> threads_;
-    http_router router_;
+    std::vector<middleware_trigger> middlewares_;
     std::vector<std::unique_ptr<boost::asio::ip::tcp::acceptor, void(*)(boost::asio::ip::tcp::acceptor*)>> acceptors_;
   };
 }

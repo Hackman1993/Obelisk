@@ -16,7 +16,8 @@ int main() {
 //  std::string_view str = "/route/dga2/param2/bacba";
 
   obelisk::http_server server("0.0.0.0", 8082);
-  server.route("/api/{name?}", std::bind(&Controller::test, std::placeholders::_1)).add_method(boost::beast::http::verb::get);
+  server.add_default_middlewares();
+  server.route("/api/{name?}", &Controller::test).add_method(boost::beast::http::verb::get).middleware("get_api_token", &obelisk::auth_middleware::handle);
 
 
   server.listen("0.0.0.0", 8083);
