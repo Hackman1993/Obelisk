@@ -9,6 +9,7 @@
 #include "session/base/http_session_base.h"
 #include "base/common_response.h"
 #include "request/http_request.h"
+#include "request/http_request_parser.h"
 
 namespace obelisk{
   class plain_http_session: public std::enable_shared_from_this<plain_http_session>
@@ -18,7 +19,7 @@ namespace obelisk{
     boost::beast::flat_buffer buffer_;
     static constexpr std::size_t queue_limit = 8;
     std::vector<boost::beast::http::message_generator> response_queue_;
-    boost::optional<boost::beast::http::request_parser<boost::beast::http::dynamic_body>> parser_;
+    boost::optional<http_request_parser> parser_;
   public:
     // Create the session
     plain_http_session(boost::asio::ip::tcp::socket&& socket, http_server& server): stream_(std::move(socket)), server_(server){
@@ -34,7 +35,7 @@ namespace obelisk{
 
     void do_read() {
       parser_.emplace();
-      parser_->body_limit(10*1024*1024);
+      parser_->body_limit(1000*1024*1024);
       boost::beast::http::async_read(stream_, buffer_, *parser_, boost::beast::bind_front_handler(&plain_http_session::on_read, shared_from_this()));
     }
 
@@ -45,9 +46,9 @@ namespace obelisk{
         std::cout << ec.what() <<ec.value() << std::endl;
         return do_eof();
       }else{
-        if (boost::beast::websocket::is_upgrade(parser_->get())) {
+        if (parser_->get().is_upgrade()) {
           boost::beast::get_lowest_layer(stream_).expires_never();
-          std::make_shared<plain_websocket_session>(std::move(stream_))->run(parser_->release());
+          //std::make_shared<plain_websocket_session>(std::move(stream_))->run(parser_->release());
         }
         queue_write(handle_request(std::move(parser_->release())));
         if (response_queue_.size() < queue_limit) do_read();
@@ -93,13 +94,8 @@ namespace obelisk{
       }
     }
 
-
-    template<class BodyType>
-    boost::beast::http::message_generator handle_request(boost::beast::http::request<BodyType> req)
+    boost::beast::http::message_generator handle_request(http_request&& req)
     {
-      if( req.target().empty() || req.target()[0] != '/' || req.target().find("..") != boost::beast::string_view::npos)
-        return string_response(400, "Illegal request-target", req.version(), req.keep_alive());
-
       http_request friendly_request(req);
       for(auto & item : server_.middlewares()){
         auto result = item.handle(friendly_request);
