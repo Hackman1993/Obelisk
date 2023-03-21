@@ -6,14 +6,10 @@
 #define OBELISK_EXCEPTION_BASE_H
 #include <string>
 namespace obelisk{
-  class exception_base{
+  class exception_base :public std::exception{
   public:
-    const std::string &what(){
-      return what_;
-    }
-    exception_base(std::string str_what) : what_(std::move(str_what)){};
+    exception_base(const std::string& str_what) : std::exception(str_what.c_str(), str_what.size()){};
   protected:
-    std::string what_;
   };
 }
 

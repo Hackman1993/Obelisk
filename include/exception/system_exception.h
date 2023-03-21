@@ -10,9 +10,7 @@
 namespace obelisk::exception {
   class system_exception : public exception_base {
   public:
-    system_exception(std::string what): exception_base(std::move(what)){}
-  private:
-    std::string what_;
+    system_exception(const std::string& str_what): exception_base(str_what){}
   };
 }
 

@@ -11,7 +11,7 @@
 namespace obelisk::exception {
   class network_exception: public exception_base{
   public:
-    network_exception(std::string what): exception_base(std::move(what)){}
+    network_exception(const std::string& str_what): exception_base(str_what){}
 
   };
 }

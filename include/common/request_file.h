@@ -10,7 +10,6 @@ namespace obelisk {
   struct request_file {
     std::string original_name;
     std::string temp_file_path;
-    std::fstream stream;
     std::string content_type;
   };
 

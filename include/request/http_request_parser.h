@@ -5,81 +5,119 @@
 #ifndef OBELISK_HTTP_REQUEST_PARSER_H
 #define OBELISK_HTTP_REQUEST_PARSER_H
 
-#include <boost/beast.hpp>
 #include <iostream>
+#include <functional>
 #include "http_request.h"
 #include "common/request_param.h"
 #include "common/request_file.h"
 #include <boost/lexical_cast.hpp>
 #include <boost/spirit/home/x3.hpp>
-#include <boost/fusion/adapted/std_tuple.hpp>
 #include <boost/fusion/adapted/std_pair.hpp>
 #include <boost/uuid/uuid_io.hpp>
 #include <boost/uuid/uuid_generators.hpp>
+#include <boost/coroutine2/coroutine.hpp>
+#include <boost/url.hpp>
 
 namespace obelisk {
   using namespace boost::beast;
   using namespace boost::spirit::x3;
-  using namespace std::chrono_literals;
 
   class http_request_parser : public http::basic_parser<true> {
-  private:
-    void form_data_body_parse_worker(){
-      while(remain_!=0 || streambuf_.size()!=0){
-        std::string_view unhandled;
-        // Receiving First boundary
-        while(!unhandled.contains("\r\n")) {
-          std::this_thread::sleep_for(0.05s);
-          unhandled = std::string_view(boost::asio::buffer_cast<const char*>(streambuf_.data()),streambuf_.size());
+  public:
+    void url_encoded_body_parser(boost::coroutines2::coroutine<void>::push_type& yield){
+      while(remain_) yield();
+      std::string_view buffer_scope(boost::asio::buffer_cast<const char*>(streambuf_.data()), streambuf_.size());
+      auto result = boost::urls::parse_origin_form(buffer_scope);
+      streambuf_.consume(buffer_scope.size());
+    }
+    void form_data_body_parser(boost::coroutines2::coroutine<void>::push_type& yield)
+    {
+      for(;;){
+        while(!std::string_view(boost::asio::buffer_cast<const char*>(streambuf_.data()), streambuf_.size()).contains("\r\n")) {
+          yield();
         }
-        std::string_view parsed_data(boost::asio::buffer_cast<const char*>(streambuf_.data()), unhandled.find("\r\n"));
 
         // If it's end boundary, exit thread
-        if(parsed_data.ends_with(boundary_+"--")) return;
+        std::string_view parsed_data(boost::asio::buffer_cast<const char*>(streambuf_.data()), std::string_view(boost::asio::buffer_cast<const char*>(streambuf_.data()), streambuf_.size()).find("\r\n"));
+        if(parsed_data == "--" + boundary_ + "--") break;
         streambuf_.consume(parsed_data.size()+2);
 
         // Reading Form Meta Data
         std::unordered_map<std::string, std::string> meta_data;
-        for(bool ended = false;!ended;){
-          while(!unhandled.contains("\r\n")) {
-            std::this_thread::sleep_for(0.05s);
-            unhandled = std::string_view(boost::asio::buffer_cast<const char*>(streambuf_.data()),streambuf_.size());
+        for(;;){
+          while(!std::string_view(boost::asio::buffer_cast<const char*>(streambuf_.data()), streambuf_.size()).contains("\r\n")) {
+            yield();
           }
-          if(unhandled.starts_with("\r\n"))
+
+          // Reading Form Meta Data
+          if(std::string_view(boost::asio::buffer_cast<const char*>(streambuf_.data()), streambuf_.size()).starts_with("\r\n"))
           {
             streambuf_.consume(2);
             break;
           }
-          parsed_data = std::string_view(boost::asio::buffer_cast<const char*>(streambuf_.data()), unhandled.find("\r\n"));
+          parsed_data = std::string_view(boost::asio::buffer_cast<const char*>(streambuf_.data()), std::string_view(boost::asio::buffer_cast<const char*>(streambuf_.data()), streambuf_.size()).find("\r\n"));
           std::string_view header = parsed_data.substr(0, parsed_data.find(':'));
           std::string_view value = parsed_data.substr(parsed_data.find(':')+1, parsed_data.size()-1);
           meta_data.emplace(header, value);
           streambuf_.consume(parsed_data.length()+2);
         }
 
-        // check if it's a file
-        if(meta_data.contains("filename"))
-        {
-
-        }else{
-
-        }
-
+        // Read Body Data
         std::unordered_map<std::string, boost::optional<std::string>> block_meta_data;
         auto parser = (+~char_(";=") >> -(lit("=") >> '\"' >> +~char_("\"") >> "\""))%";";
-        bool parse_result  = boost::spirit::x3::phrase_parse(value.begin(),value.end(), parser, ascii::space, block_meta_data);
+        bool parse_result  = boost::spirit::x3::phrase_parse(meta_data["Content-Disposition"].begin(),meta_data["Content-Disposition"].end(), parser, ascii::space, block_meta_data);
         if(!parse_result)
-          std::cout << "Parse_failed:" << value << std::endl;
+          std::cout << "Parse_failed:" << meta_data["Content-Disposition"] << std::endl;
 
+        if(block_meta_data.contains("filename")){
+          std::string file_param_name = block_meta_data["name"].get_value_or("");
+          std::filesystem::path tmp_dir= "./";
+          std::filesystem::path original_name(block_meta_data["filename"].get_value_or(""));
+          std::filesystem::path temp_filepath = tmp_dir.append(boost::uuids::to_string(boost::uuids::random_generator()()) + original_name.extension().string());
+          std::fstream stream(temp_filepath, std::ios::binary|std::ios::out);
+          auto test  = stream.is_open();
+
+          while(!std::string_view(boost::asio::buffer_cast<const char*>(streambuf_.data()), streambuf_.size()).contains("\r\n--" + boundary_))
+          {
+            std::string_view buffer_scope(boost::asio::buffer_cast<const char*>(streambuf_.data()), streambuf_.size());
+            std::string_view data_range;
+            auto position = buffer_scope.rfind("\r\n--");
+            if(position == std::string_view::npos || (buffer_scope.size() - position -1) >( boundary_.size() + 10))
+              data_range = std::string_view(boost::asio::buffer_cast<const char*>(streambuf_.data()), streambuf_.size());
+            else
+              data_range = buffer_scope.substr(0, buffer_scope.rfind("\r\n--"));
+            stream.write(data_range.data(), data_range.size());
+            streambuf_.consume(data_range.size());
+            yield();
+          }
+          // Write Tail Data
+          std::string_view tail_data(boost::asio::buffer_cast<const char*>(streambuf_.data()), streambuf_.size());
+          std::string_view file_tail = tail_data.substr(0, tail_data.find("\r\n--" + boundary_));
+          stream.write(file_tail.data(), file_tail.size());
+          streambuf_.consume(file_tail.size() + 2);
+          stream.flush();
+          stream.close();
+          continue;
+        }else{
+          while(!std::string_view(boost::asio::buffer_cast<const char*>(streambuf_.data()), streambuf_.size()).contains("\r\n--" + boundary_))
+          {
+            yield();
+          }
+          std::string_view block_data(boost::asio::buffer_cast<const char*>(streambuf_.data()), streambuf_.size());
+          std::string form_data(block_data.substr(0, block_data.find("\r\n--" + boundary_)));
+          request_.request_params_.set(block_meta_data["name"].get_value_or(""), form_data);
+          streambuf_.consume(form_data.size()+2);
+          continue;
+        }
       }
-    }
+  }
+
+    http_request_parser() = default;
+  private:
     void on_request_impl(http::verb method, string_view method_str, string_view target, int version, error_code &ec) override{
       request_.method_ = method;
       request_.version_ = version;
-
-
       std::string string_params;
-
       auto split = target.find_first_of('?');
       if(split == std::string::npos)
         request_.target_path_ = target;
@@ -123,40 +161,19 @@ namespace obelisk {
 
     void on_body_init_impl(boost::optional<std::uint64_t> const &content_length, error_code &ec) override{
       remain_ = content_length.get_value_or(0);
+      if(!request_.headers_.contains("Content-Type")) return;
+      if(request_.headers_["Content-Type"].contains("multipart/form-data")){
+        body_handle_routine_ = std::make_unique<boost::coroutines2::coroutine<void>::pull_type>(std::bind_front(&http_request_parser::form_data_body_parser, this));
+      }else if(request_.headers_["Content-Type"].contains("application/x-www-form-urlencoded")){
+        body_handle_routine_ = std::make_unique<boost::coroutines2::coroutine<void>::pull_type>(std::bind_front(&http_request_parser::url_encoded_body_parser, this));
+      }
     };
 
     std::size_t on_body_impl(string_view s, error_code &ec) override{
       streambuf_.sputn(s.begin(), s.length());
-      remains_ -= s.length();
-//      if(!boundary_.empty()){
-//          std::string_view parsed_data(boost::asio::buffer_cast<const char*>(streambuf_.data()), unhandled.find("\r\n"));
-//          if(body_parse_state_ == 0 && parsed_data.ends_with(boundary_)){
-//              streambuf_.consume(parsed_data.size() +2);
-//              body_parse_state_ ++;
-//          }else if(body_parse_state_ == 1){
-//            std::string_view header = parsed_data.substr(0, parsed_data.find(':'));
-//            std::string_view value = parsed_data.substr(parsed_data.find(':')+1, parsed_data.size()-1);
-//            if(boost::iequals(header, "Content-Disposition")){
-//              std::unordered_map<std::string, boost::optional<std::string>> result;
-//              auto parser = (+~char_(";=") >> -(lit("=") >> '\"' >> +~char_("\"") >> "\""))%";";
-//              bool parse_result  = boost::spirit::x3::phrase_parse(value.begin(),value.end(), parser, ascii::space, result);
-//              if(!parse_result)
-//                std::cout << "Parse Failed:" << parsed_data << std::endl;
-//              if(result.contains("filename")){
-//                boost::uuids::uuid uuid = boost::uuids::random_generator()();
-//                //std::filesystem::
-////                request_.file_bag_.emplace({
-////
-////                })
-//                current_file_.temp_file_path = "./" + boost::uuids::to_string(uuid);
-//                current_file_.original_name = result["filename"];
-//                current_file_.stream.open(current_file_.stream);
-//                //current_file_.n
-//              }
-//            }
-//          }
-//        }
-//      }
+      remain_ -= s.length();
+      if(body_handle_routine_)
+        body_handle_routine_->operator()();
       return s.length();
     };
 
@@ -172,10 +189,11 @@ namespace obelisk {
     void on_finish_impl(error_code &ec) override{};
 
   public:
-    http_request_parser() = default;
 
     http_request& get(){ return request_; }
     http_request release(){ return std::move(request_);}
+
+    //void content_handler(boost::coroutines2::coroutine<int>::push_type& yield, )
   private:
     bool start = false;
     http_request request_;
@@ -183,6 +201,7 @@ namespace obelisk {
     std::string boundary_;
     boost::asio::streambuf streambuf_;
     std::unique_ptr<std::thread> worker_;
+    std::unique_ptr<boost::coroutines2::coroutine<void>::pull_type> body_handle_routine_;
   };
 
 } // obelisk

@@ -57,9 +57,9 @@ namespace obelisk {
   void http_server::run_() {
     try{
       ios_.run();
-    } catch (std::exception& e){
+    } catch (exception_base& e){
       std::cout << e.what() << std::endl;
-    }catch (exception_base& e){
+    }catch (std::exception& e){
       std::cout << e.what() << std::endl;
     }
   }
