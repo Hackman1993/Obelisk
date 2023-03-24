@@ -9,15 +9,15 @@
 #include <boost/beast.hpp>
 #include <regex>
 #include <iostream>
-#include "request/http_response.h"
-#include "request/http_request.h"
+#include "common/response/http_response.h"
+#include "common/request/http_request.h"
 
 
 #include "exception/system_exception.h"
-#include "request/string_response.h"
-#include "request/empty_response.h"
+#include "common/response/string_response.h"
+#include "common/response/empty_response.h"
 #include "route_item.h"
-#include "utils/url/relative_url.h"
+#include "../utils/url/relative_url.h"
 
 namespace obelisk {
   class http_router {

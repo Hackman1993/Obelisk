@@ -11,9 +11,9 @@
 #include "route_param.h"
 #include "boost/spirit/home/x3.hpp"
 #include "exception/system_exception.h"
-#include "request/http_response.h"
-#include "request/http_request.h"
-#include "utils/url/relative_url.h"
+#include "common/response/http_response.h"
+#include "common/request/http_request.h"
+#include "../utils/url/relative_url.h"
 #include "middleware/middleware_trigger.h"
 
 namespace obelisk {

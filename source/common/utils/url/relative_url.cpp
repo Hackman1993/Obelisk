@@ -4,7 +4,7 @@
 
 #include <boost/algorithm/string/split.hpp>
 #include <boost/algorithm/string/classification.hpp>
-#include "utils/url/relative_url.h"
+#include "common/utils/url/relative_url.h"
 
 
 namespace obelisk {

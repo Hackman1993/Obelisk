@@ -2,7 +2,7 @@
 // Created by Hackman.Lo on 3/16/2023.
 //
 
-#include "route/route_item.h"
+#include "common/route/route_item.h"
 
 namespace obelisk {
   bool route_item::method_allowed(boost::beast::http::verb verb) {

@@ -5,16 +5,15 @@
 #ifndef OBELISK_AUTH_MIDDLEWARE_H
 #define OBELISK_AUTH_MIDDLEWARE_H
 #include <memory>
-#include "request/http_response.h"
-#include "request/http_request.h"
-#include "request/string_response.h"
+#include "../common/request/http_request.h"
+#include "../common/response/string_response.h"
 namespace obelisk {
 
   class auth_middleware {
   public:
     static std::unique_ptr<http_response> handle(http_request& request, std::string_view params){
-      if(!params.empty())
-        std::cout << params <<std::endl;
+//      if(!params.empty())
+//        std::cout << params <<std::endl;
       return nullptr;
     }
 

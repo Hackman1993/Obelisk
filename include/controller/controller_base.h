@@ -5,8 +5,8 @@
 #ifndef OBELISK_CONTROLLER_BASE_H
 #define OBELISK_CONTROLLER_BASE_H
 
-#include "../request/http_request.h"
-#include "../request/http_response.h"
+#include "../common/request/http_request.h"
+#include "../common/response/http_response.h"
 
 namespace obelisk {
 

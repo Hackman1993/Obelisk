@@ -1,7 +1,7 @@
 #include <iostream>
 #include "http_server.h"
-#include "route/http_router.h"
 #include "controller/auth_controller.h"
+#include <obelisk.h>
 #include <boost/url.hpp>
 
 int main() {
@@ -10,11 +10,13 @@ int main() {
 
   obelisk::http_server server("0.0.0.0", 8082);
   server.add_default_middlewares();
-  server.route("/api/{name?}", &auth_controller::test).add_method(boost::beast::http::verb::get).middleware("get_api_token", &obelisk::auth_middleware::handle);
+  server.route("/", &auth_controller::test).add_method(boost::beast::http::verb::get).middleware("get_api_token", &obelisk::auth_middleware::handle);
 
 
   server.listen("0.0.0.0", 8083);
-  server.run(1);
+  std::cout << std::thread::hardware_concurrency() << std::endl;
+
+  server.run(std::thread::hardware_concurrency() + 2);
 
   return 0;
 }

@@ -5,7 +5,7 @@
 #ifndef OBELISK_PLAIN_WEBSOCKET_SESSION_H
 #define OBELISK_PLAIN_WEBSOCKET_SESSION_H
 #include <memory>
-#include "session/base/websocket_session_base.h"
+#include "common/session/base/websocket_session_base.h"
 
 namespace obelisk{
   class plain_websocket_session: public websocket_session_base<plain_websocket_session>, public std::enable_shared_from_this<plain_websocket_session>

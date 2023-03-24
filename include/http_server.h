@@ -9,7 +9,7 @@
 #include <string>
 #include <boost/asio.hpp>
 #include <boost/asio/ssl.hpp>
-#include "route/http_router.h"
+#include "common/route/http_router.h"
 #include "middleware/auth_middleware.h"
 #include "middleware/middleware_trigger.h"
 

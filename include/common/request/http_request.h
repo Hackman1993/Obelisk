@@ -5,8 +5,10 @@
 #ifndef OBELISK_HTTP_REQUEST_H
 #define OBELISK_HTTP_REQUEST_H
 #include <boost/beast.hpp>
-#include "common/request_file.h"
-#include "common/request_param_container.h"
+#include "common/details/request_file.h"
+#include "common/details/request_param_container.h"
+#include "common/details/nocase_support.h"
+#include "common/details/http_header.h"
 
 namespace obelisk{
   class http_request{
@@ -44,7 +46,7 @@ namespace obelisk{
     std::string target_path_;
     bool is_upgrade_ : 1 = false;
     bool keep_alive_ : 1 = false;
-    std::unordered_map<std::string, std::string> headers_;
+    http_header headers_;
     std::unordered_map<std::string, request_file> file_bag_;
     boost::beast::http::verb method_;
 

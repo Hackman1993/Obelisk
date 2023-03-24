@@ -12,7 +12,7 @@
 #include <iostream>
 #include "exception/network_exception.h"
 #include "exception/system_exception.h"
-#include "session/plain_http_session.h"
+#include "common/session/plain_http_session.h"
 
 using namespace boost::asio::ip;
 namespace obelisk {
@@ -59,7 +59,7 @@ namespace obelisk {
       ios_.run();
     } catch (exception_base& e){
       std::cout << e.what() << std::endl;
-    }catch (std::exception& e){
+    } catch (std::exception& e){
       std::cout << e.what() << std::endl;
     }
   }

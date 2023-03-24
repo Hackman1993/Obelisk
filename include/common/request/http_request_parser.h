@@ -8,8 +8,7 @@
 #include <iostream>
 #include <functional>
 #include "http_request.h"
-#include "common/request_param.h"
-#include "common/request_file.h"
+#include "common/details/request_file.h"
 #include <boost/lexical_cast.hpp>
 #include <boost/spirit/home/x3.hpp>
 #include <boost/fusion/adapted/std_pair.hpp>
@@ -43,7 +42,7 @@ namespace obelisk {
         streambuf_.consume(parsed_data.size()+2);
 
         // Reading Form Meta Data
-        std::unordered_map<std::string, std::string> meta_data;
+        std::unordered_map<std::string, std::string, no_case_hash, no_case_equal> meta_data;
         for(;;){
           while(!std::string_view(boost::asio::buffer_cast<const char*>(streambuf_.data()), streambuf_.size()).contains("\r\n")) {
             yield();
@@ -63,7 +62,7 @@ namespace obelisk {
         }
 
         // Read Body Data
-        std::unordered_map<std::string, boost::optional<std::string>> block_meta_data;
+        std::unordered_map<std::string, boost::optional<std::string>, no_case_hash, no_case_equal> block_meta_data;
         auto parser = (+~char_(";=") >> -(lit("=") >> '\"' >> +~char_("\"") >> "\""))%";";
         bool parse_result  = boost::spirit::x3::phrase_parse(meta_data["Content-Disposition"].begin(),meta_data["Content-Disposition"].end(), parser, ascii::space, block_meta_data);
         if(!parse_result)

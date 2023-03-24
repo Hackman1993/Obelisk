@@ -9,6 +9,7 @@ set(CMAKE_CXX_STANDARD 23)
 
 find_package(Boost REQUIRED COMPONENTS unit_test_framework fiber url)
 find_package(OpenSSL REQUIRED)
+find_package(cryptopp CONFIG REQUIRED)
 
 include_directories(${Boost_INCLUDE_DIRS})
 include_directories(include)
@@ -21,6 +22,6 @@ target_compile_options(obelisk PRIVATE $<$<CXX_COMPILER_ID:MSVC>:/bigobj> $<$<CX
 file(GLOB_RECURSE TEST_HEADERS test/*.h test/*.hpp)
 file(GLOB_RECURSE TEST_SOURCES test/*.cpp test/*.cc)
 add_executable(obelisk_test ${TEST_HEADERS} ${TEST_SOURCES} )
-target_link_libraries(obelisk_test PRIVATE obelisk)
+target_link_libraries(obelisk_test PRIVATE obelisk cryptopp::cryptopp)
 
 

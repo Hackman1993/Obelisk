@@ -6,9 +6,9 @@
 #include <boost/asio/dispatch.hpp>
 #include <boost/beast/ssl/ssl_stream.hpp>
 #include "exception/network_exception.h"
-#include "../plain_websocket_session.h"
+#include "common/session/plain_websocket_session.h"
 
-#include "../../http_server.h"
+#include "http_server.h"
 #include <boost/url.hpp>
 #include <boost/algorithm/string.hpp>
 namespace obelisk {

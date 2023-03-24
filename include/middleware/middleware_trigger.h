@@ -7,8 +7,8 @@
 
 #include <functional>
 #include <utility>
-#include "request/http_request.h"
-#include "request/http_response.h"
+#include "../common/request/http_request.h"
+#include "../common/response/http_response.h"
 
 namespace obelisk{
   using middleware_callback = std::function<std::unique_ptr<http_response> (http_request&, std::string_view)>;

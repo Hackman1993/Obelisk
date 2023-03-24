@@ -6,10 +6,10 @@
 #define OBELISK_PLAIN_HTTP_SESSION_H
 
 #include <boost/asio/ssl/context.hpp>
-#include "session/base/http_session_base.h"
-#include "base/common_response.h"
-#include "request/http_request.h"
-#include "request/http_request_parser.h"
+#include "common/session/base/http_session_base.h"
+#include "common/session/base/common_response.h"
+#include "common/request/http_request.h"
+#include "common/request/http_request_parser.h"
 
 namespace obelisk{
   class plain_http_session: public std::enable_shared_from_this<plain_http_session>
@@ -43,7 +43,7 @@ namespace obelisk{
       boost::ignore_unused(bytes_transferred);
 
       if (ec) {
-        std::cout << ec.what() <<ec.value() << std::endl;
+        //std::cout << ec.what() <<ec.value() << std::endl;
         return do_eof();
       }else{
         if (parser_->get().is_upgrade()) {
