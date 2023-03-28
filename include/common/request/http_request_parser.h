@@ -74,7 +74,6 @@ namespace obelisk {
           std::filesystem::path original_name(block_meta_data["filename"].get_value_or(""));
           std::filesystem::path temp_filepath = tmp_dir.append(boost::uuids::to_string(boost::uuids::random_generator()()) + original_name.extension().string());
           std::fstream stream(temp_filepath, std::ios::binary|std::ios::out);
-          auto test  = stream.is_open();
 
           while(!std::string_view(boost::asio::buffer_cast<const char*>(streambuf_.data()), streambuf_.size()).contains("\r\n--" + boundary_))
           {
@@ -156,7 +155,10 @@ namespace obelisk {
       request_.headers_.emplace(name, value);
     };
 
-    void on_header_impl(error_code &ec) override{};
+    void on_header_impl(error_code &ec) override{
+      if(request_.headers_.contains("connection") && boost::iequals(request_.headers_["connection"],"keep-alive"))
+        request_.keep_alive_ = true;
+    };
 
     void on_body_init_impl(boost::optional<std::uint64_t> const &content_length, error_code &ec) override{
       remain_ = content_length.get_value_or(0);

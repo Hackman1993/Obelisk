@@ -42,7 +42,7 @@ namespace obelisk{
     void on_accept_(boost::asio::ip::tcp::acceptor* acceptor,  boost::system::error_code ec, boost::asio::ip::tcp::socket socket);
 
     http_router router_;
-    boost::asio::io_service ios_;
+    boost::asio::io_service ios_{10};
     std::vector<std::thread> threads_;
     std::vector<middleware_trigger> middlewares_;
     std::vector<std::unique_ptr<boost::asio::ip::tcp::acceptor, void(*)(boost::asio::ip::tcp::acceptor*)>> acceptors_;

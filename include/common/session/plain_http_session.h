@@ -57,9 +57,9 @@ namespace obelisk{
 
     void do_eof() {
       // TODO: Which Is Better
-      //stream_.socket().close();
-       boost::beast::error_code ec;
-       stream_.socket().shutdown(boost::asio::ip::tcp::socket::shutdown_send, ec);
+      stream_.socket().close();
+//       boost::beast::error_code ec;
+//       stream_.socket().shutdown(boost::asio::ip::tcp::socket::shutdown_send, ec);
     }
 
     void queue_write(boost::beast::http::message_generator response) {

@@ -18,7 +18,7 @@ include_directories(include)
 add_definitions(${__cpp_impl_coroutine})
 add_library(obelisk ${CPP_HEADERS} ${CPP_SOURCES})
 target_link_libraries(obelisk PRIVATE OpenSSL::SSL OpenSSL::Crypto Boost::fiber Boost::url)
-target_compile_options(obelisk PRIVATE $<$<CXX_COMPILER_ID:MSVC>:/bigobj>> $<$<CXX_COMPILER_ID:GNU>:-Wa -std=c++20>)
+#target_compile_options(obelisk PRIVATE $<$<CXX_COMPILER_ID:MSVC>:/bigobj>> $<$<CXX_COMPILER_ID:GNU>:-Wa -std=c++20>)
 target_compile_features(obelisk PUBLIC cxx_std_20)
 
 file(GLOB_RECURSE TEST_HEADERS test/*.h test/*.hpp)

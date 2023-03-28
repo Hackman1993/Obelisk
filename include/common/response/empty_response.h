@@ -15,7 +15,7 @@ namespace obelisk {
 
   class empty_response : public http_response {
   public:
-    empty_response(unsigned int code = 200): http_response(code){}
+    empty_response(unsigned int code = 200, bool keep_alive = false): http_response(code, keep_alive){}
     ~empty_response(){};
     operator boost::beast::http::message_generator() override {
       boost::beast::http::response<boost::beast::http::empty_body> res{(boost::beast::http::status)resp_code_, 11};
