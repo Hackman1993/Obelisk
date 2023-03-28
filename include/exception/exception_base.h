@@ -8,7 +8,7 @@
 namespace obelisk{
   class exception_base :public std::exception{
   public:
-    exception_base(const std::string& str_what) : std::exception(str_what.c_str(), str_what.size()){};
+    exception_base(const std::string& str_what) : std::exception(){};
   protected:
   };
 }
