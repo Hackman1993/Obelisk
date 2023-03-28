@@ -1,0 +1,53 @@
+//
+// Created by Hackman.Lo on 3/28/2023.
+//
+
+#ifndef OBELISK_SCRYPT_HASHER_H
+#define OBELISK_SCRYPT_HASHER_H
+#include <cryptopp/scrypt.h>
+#include <cryptopp/cryptlib.h>
+#include <cryptopp/filters.h>
+#include <cryptopp/hex.h>
+#include <cryptopp/files.h>
+#include <cryptopp/osrng.h>
+
+namespace obelisk {
+
+  class scrypt_hasher {
+
+  public:
+    static std::string random_salt(){
+      std::string salt;
+      salt.resize(8);
+      CryptoPP::AutoSeededRandomPool prng;
+      prng.GenerateBlock(reinterpret_cast<CryptoPP::byte *>(salt.data()), salt.size());
+
+      std::string salt_hex;
+      CryptoPP::StringSource(salt, true, new CryptoPP::HexEncoder(new CryptoPP::StringSink(salt_hex)));
+      return salt_hex;
+    }
+
+    static std::string hash(std::string_view data, std::string salt = random_salt()){
+
+      CryptoPP::SecByteBlock derived(64);
+      CryptoPP::Scrypt scrypt;
+      scrypt.DeriveKey(derived, derived.size(), reinterpret_cast<const CryptoPP::byte *>(data.data()), data.size(),
+                       reinterpret_cast<const CryptoPP::byte *>(salt.data()), salt.size());
+      std::string result;
+      CryptoPP::StringSource(derived, derived.size(), true, new CryptoPP::HexEncoder(new CryptoPP::StringSink(result)));
+      result = salt + "$" +result;
+      return result;
+    }
+
+    static bool check(std::string_view hashed, std::string_view data){
+      std::vector<std::string> data_split;
+      boost::split(data_split, hashed, boost::is_any_of("$"));
+      std::string rehash = hash(data, data_split[0]);
+      return hashed == rehash;
+    }
+
+  };
+
+} // obelisk
+
+#endif //OBELISK_SCRYPT_HASHER_H

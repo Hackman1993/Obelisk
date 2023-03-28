@@ -3,6 +3,8 @@
 #include "controller/auth_controller.h"
 #include <obelisk.h>
 #include <boost/url.hpp>
+#include <rosetta.h>
+#include "cryption/scrypt_hasher.h"
 
 int main() {
 //  obelisk::route_item item("/route/{param1}/{param2}/bacba");
@@ -11,6 +13,7 @@ int main() {
   obelisk::http_server server("0.0.0.0", 8082);
   server.add_default_middlewares();
   server.route("/", &auth_controller::test).add_method(boost::beast::http::verb::get).middleware("get_api_token", &obelisk::auth_middleware::handle);
+
 
 
   server.listen("0.0.0.0", 8083);

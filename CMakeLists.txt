@@ -14,6 +14,15 @@ find_package(cryptopp CONFIG REQUIRED)
 
 include_directories(${Boost_INCLUDE_DIRS})
 include_directories(include)
+include_directories(D:/Workspace/Cpp/Rosetta/include)
+
+include_directories("C:\\Program Files\\MySQL\\MySQL Connector C++ 8.0\\include")
+link_directories("C:/Program Files/MySQL/MySQL Connector C++ 8.0/debug/vs14")
+if (${CMAKE_BUILD_TYPE} MATCHES Debug)
+    link_directories(D:/Workspace/Cpp/Rosetta/cmake-build-debug)
+elseif (Release)
+    link_directories(D:/Workspace/Cpp/Rosetta/cmake-build-release)
+endif()
 
 add_definitions(${__cpp_impl_coroutine})
 add_library(obelisk ${CPP_HEADERS} ${CPP_SOURCES})
