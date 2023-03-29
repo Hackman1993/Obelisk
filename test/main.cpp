@@ -5,10 +5,11 @@
 #include <boost/url.hpp>
 #include <rosetta.h>
 #include "cryption/scrypt_hasher.h"
-
+#include "DB.h"
 int main() {
 //  obelisk::route_item item("/route/{param1}/{param2}/bacba");
 //  std::string_view str = "/route/dga2/param2/bacba";
+  obelisk::DB::make_pool("default", 10, "127.0.0.1", 3306, "root","hl97005497--", "science_society");
 
   obelisk::http_server server("0.0.0.0", 8082);
   server.add_default_middlewares();

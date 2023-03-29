@@ -39,6 +39,13 @@ namespace obelisk{
       return is_upgrade_;
     }
 
+    http_header& header(){
+      return headers_;
+    }
+
+    request_param_container& params(){
+      return request_params_;
+    }
 
     http_request() = default;
   protected:

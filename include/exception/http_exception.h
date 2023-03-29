@@ -10,6 +10,10 @@
 
 namespace obelisk::exception {
   class http_exception: public exception_base{
+  public:
+    http_exception(std::string_view what, std::size_t code = 500): exception_base(what), code_(code){};
+  protected:
+    std::size_t code_;
 
   };
 }

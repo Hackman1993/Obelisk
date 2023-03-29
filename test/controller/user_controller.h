@@ -11,7 +11,7 @@ namespace obelisk {
 
   class user_controller :public controller_base {
   public:
-    static std::string get_token(std::string_view username, std::string password);
+    static std::unique_ptr<obelisk::http_response> get_token(obelisk::http_request &request);
 
   };
 

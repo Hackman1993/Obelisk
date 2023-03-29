@@ -16,6 +16,14 @@ namespace obelisk {
       return *pools_[name];
     }
 
+    template <typename Connection>
+    static std::shared_ptr<Connection> get_connection(const std::string& name){
+      if(pools_.contains(name)){
+        return pools_[name]->template get_connection<Connection>();
+      }
+      return nullptr;
+    }
+
   protected:
     static std::unordered_map<std::string, std::unique_ptr<rosetta::database_pool>> pools_;
   };

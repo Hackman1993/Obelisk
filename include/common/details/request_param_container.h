@@ -18,8 +18,11 @@ namespace obelisk {
       else{
         std::vector<std::string> temp_{value};
         auto result =  params_.emplace(key, std::move(temp_));
-
       }
+    }
+
+    bool contains(const std::string& name){
+      return params_.contains(name);
     }
   protected:
     std::unordered_map<std::string, std::vector<std::string>> params_;

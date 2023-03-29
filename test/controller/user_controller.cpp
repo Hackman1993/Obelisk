@@ -5,8 +5,9 @@
 #include "user_controller.h"
 #include "DB.h"
 namespace obelisk {
-  std::string user_controller::get_token(std::string_view username, std::string password) {
 
-    return std::string();
+  std::unique_ptr<obelisk::http_response> user_controller::get_token(http_request &request) {
+
+    return std::unique_ptr<obelisk::http_response>();
   }
 } // obelisk
