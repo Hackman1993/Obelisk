@@ -9,9 +9,12 @@ namespace obelisk::validator{
 
   class required_validator: public validator_base {
   public:
-    required_validator(const std::string& name, http_request& request) : validator_base(name, request, name +" Is Required"){};
-    void validate() const override;
+    void validate(const std::string& name, http_request& request) override;
+
+    std::string error_message(std::vector<std::string> params) override;
   };
+
+  std::shared_ptr<required_validator> required();
 }
 
 #endif //OBELISK_REQUIRED_VALIDATOR_H

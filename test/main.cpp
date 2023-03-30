@@ -6,14 +6,15 @@
 #include <rosetta.h>
 #include "cryption/scrypt_hasher.h"
 #include "DB.h"
+#include "controller/user_controller.h"
 int main() {
 //  obelisk::route_item item("/route/{param1}/{param2}/bacba");
 //  std::string_view str = "/route/dga2/param2/bacba";
-  obelisk::DB::make_pool("default", 10, "127.0.0.1", 3306, "root","hl97005497--", "science_society");
+  obelisk::DB::make_pool("default", 10, "127.0.0.1", 3306, "root","hl97005497--", "science_society").initialize<rosetta::mysql_connection>();
 
   obelisk::http_server server("0.0.0.0", 8082);
   server.add_default_middlewares();
-  server.route("/", &auth_controller::test).add_method(boost::beast::http::verb::get).middleware("get_api_token", &obelisk::auth_middleware::handle);
+  server.route("/api/user/login", &obelisk::user_controller::get_token).add_method(boost::beast::http::verb::post);
 
 
 

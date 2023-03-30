@@ -15,13 +15,12 @@ namespace obelisk {
 
   class string_response : public http_response {
   public:
-    string_response(unsigned int code, std::string content, bool keep_alive): http_response(code, keep_alive), content_(std::move(content)){}
+    string_response(unsigned int code, std::string content): http_response(code), content_(std::move(content)){}
     ~string_response(){};
     operator boost::beast::http::message_generator() override {
       boost::beast::http::response<boost::beast::http::string_body> res{(boost::beast::http::status)resp_code_, 11};
       res.set(boost::beast::http::field::server, "Obelisk/1.0.0");
       res.set(boost::beast::http::field::content_type, "text/html");
-      res.keep_alive(keep_alive_);
       res.body() = content_;
       res.prepare_payload();
       return res;

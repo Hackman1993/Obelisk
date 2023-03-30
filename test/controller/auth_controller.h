@@ -29,7 +29,7 @@ public:
       CryptoPP::StringSource encryptor(uuid, true, new CryptoPP::StreamTransformationFilter(encryption, new CryptoPP::Base64Encoder(new CryptoPP::StringSink(encrypted), false)));
       uuid = encrypted;
     }
-    return std::make_unique<obelisk::string_response>(200, "{\"code\":0 , \"content\":\"" + uuid + "\" , \"msg\":\"SUCCESS\"}", request.keep_alive());
+    return std::make_unique<obelisk::string_response>(200, "{\"code\":0 , \"content\":\"" + uuid + "\" , \"msg\":\"SUCCESS\"}");
   }
 };
 

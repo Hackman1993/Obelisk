@@ -24,6 +24,16 @@ namespace obelisk {
     bool contains(const std::string& name){
       return params_.contains(name);
     }
+
+    std::string get(const std::string& name){
+      if(!name.contains(name) || params_[name].size() == 0) return {};
+
+      return params_[name][0];
+    }
+
+    std::vector<std::string>& get_all(const std::string& name){
+      return params_[name];
+    }
   protected:
     std::unordered_map<std::string, std::vector<std::string>> params_;
   };

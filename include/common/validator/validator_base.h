@@ -4,18 +4,26 @@
 
 #ifndef OBELISK_VALIDATOR_BASE_H
 #define OBELISK_VALIDATOR_BASE_H
-#include "../request/http_request.h"
-namespace obelisk::validator {
-  class validator_base {
-  public:
-    validator_base(std::string_view name, http_request& request, const std::string& default_message): name_(name), request_(request), message_(default_message){};
-    virtual void validate() const = 0;
+#include <string>
+#include <vector>
+#include <utility>
+#include <memory>
+namespace obelisk{
+  class http_request;
+  namespace validator {
 
-  protected:
-    std::string name_;
-    std::string message_;
-    http_request& request_;
-  };
+
+    class validator_base {
+    public:
+      virtual void validate(const std::string& name, http_request& request) = 0;
+      virtual std::string error_message(std::vector<std::string> params) = 0;
+    };
+
+    struct validator_group{
+      std::string name_;
+      std::vector<std::shared_ptr<validator_base>> validators_;
+    };
+  }
 } // validator
 
 #endif //OBELISK_VALIDATOR_BASE_H

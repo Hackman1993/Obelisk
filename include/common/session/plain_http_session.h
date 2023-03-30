@@ -10,7 +10,8 @@
 #include "common/session/base/common_response.h"
 #include "common/request/http_request.h"
 #include "common/request/http_request_parser.h"
-
+#include "exception/http_exception.h"
+#include <format>
 namespace obelisk{
   class plain_http_session: public std::enable_shared_from_this<plain_http_session>
   {
@@ -20,6 +21,7 @@ namespace obelisk{
     static constexpr std::size_t queue_limit = 8;
     std::vector<boost::beast::http::message_generator> response_queue_;
     boost::optional<http_request_parser> parser_;
+    bool keep_alive_ = false;
   public:
     // Create the session
     plain_http_session(boost::asio::ip::tcp::socket&& socket, http_server& server): stream_(std::move(socket)), server_(server){
@@ -50,7 +52,9 @@ namespace obelisk{
           boost::beast::get_lowest_layer(stream_).expires_never();
           //std::make_shared<plain_websocket_session>(std::move(stream_))->run(parser_->release());
         }
-        queue_write(handle_request(std::move(parser_->release())));
+        http_request request(std::move(parser_->release()));
+        keep_alive_ = request.keep_alive();
+        queue_write(handle_request(request));
         if (response_queue_.size() < queue_limit) do_read();
       }
     }
@@ -73,19 +77,18 @@ namespace obelisk{
       if (!response_queue_.empty()) {
         boost::beast::http::message_generator msg = std::move(response_queue_.front());
         response_queue_.erase(response_queue_.begin());
-        bool keep_alive = msg.keep_alive();
-        boost::beast::async_write(stream_, std::move(msg), boost::beast::bind_front_handler(&plain_http_session::on_write, shared_from_this(), keep_alive));
+        boost::beast::async_write(stream_, std::move(msg), boost::beast::bind_front_handler(&plain_http_session::on_write, shared_from_this()));
       }
 
       return was_full;
     }
 
-    void on_write(bool keep_alive, boost::beast::error_code ec, std::size_t bytes_transferred) {
+    void on_write(boost::beast::error_code ec, std::size_t bytes_transferred) {
       boost::ignore_unused(bytes_transferred);
       if(ec)
         throw exception::network_exception{ec.what()};
 
-      if (!keep_alive) {
+      if (!keep_alive_) {
         return do_eof();
       }
 
@@ -94,17 +97,22 @@ namespace obelisk{
       }
     }
 
-    boost::beast::http::message_generator handle_request(http_request&& req)
+    boost::beast::http::message_generator handle_request(http_request& req)
     {
-      http_request friendly_request(req);
-      for(auto & item : server_.middlewares()){
-        auto result = item.handle(friendly_request);
+      //http_request friendly_request(req);
+      try{
+        for(auto & item : server_.middlewares()){
+          auto result = item.handle(req);
+          if(result) return *result;
+        }
+        auto result = server_.router().handle(req);
         if(result) return *result;
+      }catch (exception::http_exception& e){
+        std::string error = std::format("Server Error: {}", e.what());
+        std::string data = std::format("{{ \"code\": \"{}\", \"message\": \"{}\", \"data\": null}}", e.code(), e.what());
+        return string_response(e.code(), data, req.version());
       }
-      auto result = server_.router().handle(friendly_request);
-      if(result) return *result;
-
-      return string_response(404, "Not Found!", req.version(), req.keep_alive());
+      return string_response(404, "Not Found!", req.version());
     }
   };
 }

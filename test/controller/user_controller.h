@@ -4,7 +4,6 @@
 
 #ifndef OBELISK_USER_CONTROLLER_H
 #define OBELISK_USER_CONTROLLER_H
-
 #include "controller/controller_base.h"
 
 namespace obelisk {

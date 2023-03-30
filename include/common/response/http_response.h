@@ -9,13 +9,12 @@ namespace obelisk {
 
   class http_response {
   public:
-    http_response(unsigned int code, bool keep_alive): resp_code_(code), keep_alive_(keep_alive){};
+    http_response(unsigned int code): resp_code_(code){};
 
     virtual operator boost::beast::http::message_generator() = 0;
     virtual ~http_response() {};
   protected:
     unsigned int resp_code_ = 200;
-    bool keep_alive_ = false;
   };
 
 } // obelisk

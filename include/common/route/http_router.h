@@ -31,7 +31,7 @@ namespace obelisk {
           return std::make_unique<empty_response>();
         }
         if(!item.method_allowed(method))
-          return std::make_unique<string_response>(405, "Method Not Allowed!", request.keep_alive());
+          return std::make_unique<string_response>(405, "Method Not Allowed!");
 
         for(auto & middleware: item.get_middlewares()){
           auto resp = middleware.handle(request);

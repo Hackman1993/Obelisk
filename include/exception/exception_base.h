@@ -8,7 +8,11 @@
 namespace obelisk{
   class exception_base :public std::exception{
   public:
-    explicit exception_base(std::string_view str_what) : std::exception(), message_(str_what){};
+    const char *what() const override {
+      return message_.c_str();
+    }
+
+    explicit exception_base(const std::string& str_what) : std::exception(), message_(str_what){};
   protected:
     std::string message_;
   };

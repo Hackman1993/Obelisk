@@ -9,10 +9,20 @@
 #include "common/details/request_param_container.h"
 #include "common/details/nocase_support.h"
 #include "common/details/http_header.h"
-
+#include <initializer_list>
+#include "../validator/validator_base.h"
 namespace obelisk{
   class http_request{
   public:
+
+    void validate(std::vector<validator::validator_group> validators){
+      for(auto &i : validators){
+        for(auto &j : i.validators_){
+          j->validate(i.name_, *this);
+        }
+      }
+
+    }
 
     boost::beast::http::verb method()
     {
@@ -47,6 +57,13 @@ namespace obelisk{
       return request_params_;
     }
 
+    std::string param(const std::string& name){
+      return request_params_.get(name);
+    }
+
+    std::vector<std::string> paramv(const std::string& name) {
+      return request_params_.get_all(name);
+    }
     http_request() = default;
   protected:
     unsigned int version_;
