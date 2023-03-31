@@ -20,6 +20,6 @@ namespace obelisk {
     auto stmt = conn->prepared_statement("select * from t_user where username is not null limit 10");
     auto result = stmt.execute();
 
-    return json_response(boost::polymorphic_pointer_cast<rosetta::sql_result>(result));
+    return json_response(nullptr);
   }
 } // obelisk
