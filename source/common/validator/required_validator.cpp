@@ -4,7 +4,6 @@
 
 #include "common/validator/required_validator.h"
 #include "exception/validation_exception.h"
-#include <fmt/format.h>
 #include "common/request/http_request.h"
 namespace obelisk::validator {
 
@@ -15,8 +14,7 @@ namespace obelisk::validator {
   }
 
   std::string required_validator::error_message(std::vector<std::string> data) {
-
-    return std::format("Field {} Is Required!", data[0]);
+    return std::format("Field {} is required.", data[0]);
   }
 
   std::shared_ptr<required_validator> required() {

@@ -29,7 +29,7 @@ namespace obelisk{
     }
 
     virtual void add_default_middlewares(){
-      middlewares_.emplace_back("", &auth_middleware::handle);
+      middlewares_.emplace_back("token_auth", &auth_middleware::handle);
     }
 
     std::vector<middleware_trigger>& middlewares(){

@@ -52,6 +52,7 @@ namespace obelisk {
 
     bool method_allowed(boost::beast::http::verb verb);
 
+
     std::unordered_map<std::string,std::string> parse(std::vector<std::string>& split){
       if(any_match_) return {};
 

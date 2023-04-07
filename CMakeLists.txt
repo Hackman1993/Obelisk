@@ -8,10 +8,11 @@ file(GLOB_RECURSE CPP_TESTS tests/*.cpp)
 set(CMAKE_CXX_STANDARD 23)
 #set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++23")
 
-find_package(Boost REQUIRED COMPONENTS unit_test_framework fiber url thread)
+find_package(Boost REQUIRED COMPONENTS unit_test_framework fiber url thread json)
 find_package(OpenSSL REQUIRED)
 find_package(fmt CONFIG REQUIRED)
 find_package(cryptopp CONFIG REQUIRED)
+find_package(rttr CONFIG REQUIRED)
 
 include_directories(${Boost_INCLUDE_DIRS})
 include_directories(include)
@@ -31,13 +32,13 @@ add_library(obelisk ${CPP_HEADERS} ${CPP_SOURCES})
 target_link_libraries(obelisk PRIVATE
         OpenSSL::SSL OpenSSL::Crypto Boost::fiber
         Boost::url Boost::thread
-        mysqlcppconn8 mysqlcppconn)
+        mysqlcppconn8 mysqlcppconn RTTR::Core)
 #target_compile_options(obelisk PRIVATE $<$<CXX_COMPILER_ID:MSVC>:/bigobj>> $<$<CXX_COMPILER_ID:GNU>:-Wa -std=c++20>)
 target_compile_features(obelisk PUBLIC cxx_std_20)
 
 file(GLOB_RECURSE TEST_HEADERS test/*.h test/*.hpp)
 file(GLOB_RECURSE TEST_SOURCES test/*.cpp test/*.cc)
 add_executable(obelisk_test ${TEST_HEADERS} ${TEST_SOURCES} )
-target_link_libraries(obelisk_test PRIVATE obelisk cryptopp::cryptopp rosetta)
+target_link_libraries(obelisk_test PRIVATE obelisk cryptopp::cryptopp rosetta Boost::json)
 
 
