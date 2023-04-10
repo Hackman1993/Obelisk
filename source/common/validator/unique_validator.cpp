@@ -19,7 +19,7 @@ namespace obelisk {
       }
       stmt->bind_param(0, request.param(name));
       auto result = stmt->execute();
-      if(result->get<rosetta::sql_uint>(0,0) > 0)
+      if(result->get<rosetta::unsigned_integer>(0,0) > 0)
         throw exception::validation_exception(error_message({ std::string(name)}));
     }
 

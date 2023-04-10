@@ -17,14 +17,17 @@ find_package(rttr CONFIG REQUIRED)
 include_directories(${Boost_INCLUDE_DIRS})
 include_directories(include)
 include_directories(D:/Workspace/Cpp/Rosetta/include)
+include_directories(D:/Workspace/Cpp/libsahara/include)
 
 include_directories("C:\\Program Files\\MySQL\\MySQL Connector C++ 8.0\\include")
 link_directories("C:/Program Files/MySQL/MySQL Connector C++ 8.0/debug/vs14")
 #link_directories(D:/Workspace/Cpp/Rosetta/cmake-build-debug)
 if (${CMAKE_BUILD_TYPE} MATCHES Debug)
     link_directories(D:/Workspace/Cpp/Rosetta/cmake-build-debug)
+    link_directories(D:/Workspace/Cpp/libsahara/cmake-build-debug)
 elseif (${CMAKE_BUILD_TYPE} MATCHES Release)
     link_directories(D:/Workspace/Cpp/Rosetta/cmake-build-release)
+    link_directories(D:/Workspace/Cpp/libsahara/cmake-build-release)
 endif()
 
 add_definitions(${__cpp_impl_coroutine})
@@ -32,13 +35,13 @@ add_library(obelisk ${CPP_HEADERS} ${CPP_SOURCES})
 target_link_libraries(obelisk PRIVATE
         OpenSSL::SSL OpenSSL::Crypto Boost::fiber
         Boost::url Boost::thread
-        mysqlcppconn8 mysqlcppconn RTTR::Core)
+        mysqlcppconn8 mysqlcppconn RTTR::Core libsahara rosetta)
 #target_compile_options(obelisk PRIVATE $<$<CXX_COMPILER_ID:MSVC>:/bigobj>> $<$<CXX_COMPILER_ID:GNU>:-Wa -std=c++20>)
 target_compile_features(obelisk PUBLIC cxx_std_20)
 
 file(GLOB_RECURSE TEST_HEADERS test/*.h test/*.hpp)
 file(GLOB_RECURSE TEST_SOURCES test/*.cpp test/*.cc)
 add_executable(obelisk_test ${TEST_HEADERS} ${TEST_SOURCES} )
-target_link_libraries(obelisk_test PRIVATE obelisk cryptopp::cryptopp rosetta Boost::json)
+target_link_libraries(obelisk_test PRIVATE obelisk cryptopp::cryptopp rosetta Boost::json libsahara)
 
 

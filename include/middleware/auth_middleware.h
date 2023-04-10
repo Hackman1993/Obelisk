@@ -28,7 +28,7 @@ namespace obelisk {
       stmt->bind_param(0, token);
       auto result = stmt->execute();
       if(result->count() <=0 )  throw exception::http_exception("Access Denied!", 403);
-      request.params().set("__current_user_id", result->get<rosetta::sql_string>(0, "user_id"));
+      request.params().set("__current_user_id", result->get<rosetta::string>(0, "user_id"));
 
       return nullptr;
     }

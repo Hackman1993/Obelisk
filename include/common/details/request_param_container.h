@@ -34,6 +34,15 @@ namespace obelisk {
     std::vector<std::string>& get_all(const std::string& name){
       return params_[name];
     }
+
+    std::shared_ptr<request_param_container> only(const std::vector<std::string>& fields){
+      auto result = std::make_shared<request_param_container>();
+      for(const auto& field:fields){
+        if(params_.contains(field))
+          result->params_.emplace(field, params_[field]);
+      }
+      return result;
+    }
   protected:
     std::unordered_map<std::string, std::vector<std::string>> params_;
   };

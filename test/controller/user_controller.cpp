@@ -8,6 +8,7 @@
 #include "cryption/scrypt_hasher.h"
 #include <boost/uuid/uuid_io.hpp>
 #include <boost/uuid/uuid_generators.hpp>
+#include <boost/format.hpp>
 #include "../model/user.h"
 namespace obelisk {
 
@@ -24,8 +25,9 @@ namespace obelisk {
     stmt->bind_param(0, request.param("login"));
     auto result = stmt->execute();
 
-    std::string password_hash = result->get<rosetta::sql_string>(0,"password");
-    std::string user_id = result->get<rosetta::sql_string>(0,"user_id");
+    std::string password_hash = result->get<rosetta::string>(0,"password");
+    std::string user_id = result->get<rosetta::string>(0,"user_id");
+
     if(result && result->count()){
       if(!obelisk::scrypt_hasher::check(password_hash, password)) return json_response(nullptr, 200, "Invalid Credential");
       auto uuid = boost::uuids::to_string(boost::uuids::random_generator()());
@@ -44,7 +46,7 @@ namespace obelisk {
     std::string username = request.param("login");
     auto conn = DB::get_connection<rosetta::mysql_connection>("default");
     if(!conn) throw exception::http_exception("No Database Connection Available", 200);
-    auto stmt = conn->prepared_statement("select user_id,username,email,real_name,phone_number from t_user where user_id = ?");
+    auto stmt = conn->prepared_statement("select user_id,username,email,real_name,phone_number from t_user where user_id = ? and deleted_at is null and status=1");
     auto test = request.param("__current_user_id");
     stmt->bind_param(0, request.param("__current_user_id"));
     auto result = stmt->execute();
@@ -56,10 +58,12 @@ namespace obelisk {
     using namespace validator;
     request.validate({
                          { "username", { required(), unique("t_user", "username") }},
-                         { "password", { required(), min_length(8),confirmed() }}
+                         { "password", { required(), min_length(8),confirmed() }},
+                         { "real_name", {required(), min_length(1)}},
+                         { "organization_id", {required(), exists("t_organization", "organization_id")}},
                      });
-
-    model::user test2 = rttr::type::get_by_name("model::user").create().get_value<model::user>();
+    auto usr = obelisk::orm::user::create(request.params());
+    usr.status = nullptr;
     return nullptr;
   }
 

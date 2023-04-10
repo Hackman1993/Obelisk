@@ -10,7 +10,7 @@ namespace obelisk::validator {
     auto stmt = DB::get_connection<rosetta::mysql_connection>("default")->prepared_statement(std::format("select count({}) as result from {} where {}=? ", field_, table_, field_));
     stmt->bind_param(0, request.param(name));
     auto result = stmt->execute();
-    if(!result || result->count() <= 0 || result->get<rosetta::sql_uint>(0,0) == 0)
+    if(!result || result->count() <= 0 || result->get<rosetta::unsigned_integer>(0,0) == 0)
       throw exception::validation_exception(error_message({ std::string(name)}));
   }
 
