@@ -111,6 +111,8 @@ namespace obelisk{
         std::string error = std::format("Server Error: {}", e.what());
         std::string data = std::format("{{ \"code\": \"{}\", \"message\": \"{}\", \"data\": null}}", e.code(), e.what());
         return string_response(e.code(), data, req.version());
+      } catch (std::exception& e){
+        return string_response(500, e.what(), req.version());
       }
       return string_response(404, "Not Found!", req.version());
     }

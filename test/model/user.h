@@ -4,12 +4,13 @@
 
 #ifndef OBELISK_USER_H
 #define OBELISK_USER_H
-#include "model.h"
+#include "orm/model.h"
 #include <chrono>
 #include <variant>
 #include <rttr/registration_friend>
+#include "DB.h"
 namespace obelisk::orm{
-  class user : public model<user, rosetta::string>{
+  class user : public model<user, true, true>{
   public:
     rosetta::string user_id = nullptr;
     rosetta::string username = nullptr;
@@ -26,39 +27,27 @@ namespace obelisk::orm{
     rosetta::timestamp updated_at = nullptr;
     rosetta::timestamp deleted_at = nullptr;
 
-    std::string_view table() override;
-    std::string_view primary_key() override;
-    rosetta::string generate_id() override;
+    static std::string_view table(){
+        return "t_user";
+    }
+    static std::string_view primary_key(){
+        return "user_id";
+    }
   protected:
     std::vector<std::string> hidden_ = {"password"};
-    std::string table_ = "t_user";
     RTTR_REGISTRATION_FRIEND
   };
-
-  std::string_view user::table() {
-    return "t_user";
-  }
-
-  std::string_view user::primary_key() {
-    return "user_id";
-  }
-  rosetta::string user::generate_id() {
-    return rosetta::string(boost::replace_all_copy(boost::uuids::to_string(boost::uuids::random_generator()()),"-",""));
-  }
 }
 
 RTTR_REGISTRATION
 {
   using namespace rttr;
   registration::class_<obelisk::orm::user>("model::user")
-      .constructor<>()
-      .method("create", &obelisk::orm::user::create)
       .method("table", &obelisk::orm::user::table)
       .method("primary_key", &obelisk::orm::user::primary_key)
       .property("username", &obelisk::orm::user::username)
       .property("password", &obelisk::orm::user::password)
       .property("organization_id", &obelisk::orm::user::organization_id)
-      .property_readonly("table_", &obelisk::orm::user::table_)
       .property("hidden_", &obelisk::orm::user::hidden_)
       .property("user_id", &obelisk::orm::user::user_id)
       .property("email", &obelisk::orm::user::email)

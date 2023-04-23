@@ -13,6 +13,7 @@ namespace obelisk {
     static std::unique_ptr<obelisk::http_response> get_token(obelisk::http_request &request);
     static std::unique_ptr<obelisk::http_response> current(obelisk::http_request &request);
     static std::unique_ptr<obelisk::http_response> create(obelisk::http_request &request);
+    static std::unique_ptr<obelisk::http_response> update(obelisk::http_request &request);
 
   };
 

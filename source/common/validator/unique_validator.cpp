@@ -9,13 +9,13 @@
 namespace obelisk {
   namespace validator {
     void unique_validator::validate(const std::string &name, http_request &request) {
-      std::shared_ptr<rosetta::mysql_statement> stmt;
+      std::shared_ptr<rosetta::sql_statement_base> stmt;
       if(except_field_.empty())
       {
-        stmt = DB::get_connection<rosetta::mysql_connection>("default")->prepared_statement(std::format("select count({}) from {} where {}=?", field_, table_, field_));
+        stmt = DB::get_connection<rosetta::database_connection_base>("default")->prepared_statement(std::format("select count({}) from {} where {}=?", field_, table_, field_));
       }
       else {
-        stmt = DB::get_connection<rosetta::mysql_connection>("default")->prepared_statement(std::format("select count({}) from {} where {}=? and {}!={}", field_, table_, field_, except_field_, except_value_));
+        stmt = DB::get_connection<rosetta::database_connection_base>("default")->prepared_statement(std::format("select count({}) from {} where {}=? and {}!={}", field_, table_, field_, except_field_, except_value_));
       }
       stmt->bind_param(0, request.param(name));
       auto result = stmt->execute();

@@ -16,6 +16,7 @@
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/coroutine2/coroutine.hpp>
 #include <boost/url.hpp>
+#include "coder/url.h"
 
 namespace obelisk {
   using namespace boost::beast;
@@ -136,6 +137,7 @@ namespace obelisk {
         std::string param_name, param_value;
         param_name = split == std::string::npos? param: param.substr(0, split);
         param_value =split == std::string::npos? "":param.substr(split+1, param.size()-1);
+        param_value = sahara::coder::url_decode(param_value);
         request_.request_params_.set(param_name, param_value);
       }
     }

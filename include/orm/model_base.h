@@ -5,16 +5,16 @@
 #ifndef OBELISK_MODEL_BASE_H
 #define OBELISK_MODEL_BASE_H
 #include <string_view>
-#include "nullable_types.h"
+#include "types/nullable.h"
+#include <rttr/registration>
 namespace obelisk::orm {
 
   class model_base {
   protected:
-    virtual std::string_view table() = 0;
-    virtual std::string_view primary_key() = 0;
-    virtual rosetta::string generate_id() {
-      return rosetta::string(nullptr);
-    };
+    template<typename Convert>
+    static bool type_match(const rttr::property &property) {
+      return property.get_type() == rttr::type::get<Convert>();
+    }
   };
 
 } // model
