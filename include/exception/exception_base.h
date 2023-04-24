@@ -4,17 +4,17 @@
 
 #ifndef OBELISK_EXCEPTION_BASE_H
 #define OBELISK_EXCEPTION_BASE_H
-#include <string>
+#include "string/string.h"
 namespace obelisk{
-  class exception_base :public std::exception{
+  class exception_base : private std::exception{
   public:
-    const char *what() const override {
-      return message_.c_str();
+    virtual sahara::string& message() const noexcept override{
+      return message_;
     }
 
     explicit exception_base(const std::string& str_what) : std::exception(), message_(str_what){};
   protected:
-    std::string message_;
+      sahara::string message_;
   };
 }
 

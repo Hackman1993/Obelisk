@@ -15,7 +15,7 @@ namespace obelisk {
 
   class string_response : public http_response {
   public:
-    string_response(unsigned int code, std::string content): http_response(code), content_(std::move(content)){}
+    string_response(unsigned int code, sahara::string& content): http_response(code), content_(std::move(content)){}
     ~string_response(){};
     operator boost::beast::http::message_generator() override {
       boost::beast::http::response<boost::beast::http::string_body> res{(boost::beast::http::status)resp_code_, 11};
@@ -27,7 +27,7 @@ namespace obelisk {
     }
 
   protected:
-    std::string content_;
+      sahara::string content_;
   };
 
 } // obelisk

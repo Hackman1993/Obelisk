@@ -37,11 +37,11 @@ namespace obelisk{
       return version_;
     }
 
-    std::string_view target_path(){
+    const sahara::string& target_path(){
       return target_path_;
     }
 
-    std::unordered_map<std::string, std::string>& route_params(){
+    std::unordered_map<sahara::string, sahara::string>& route_params(){
       return route_params_;
     }
 
@@ -57,25 +57,25 @@ namespace obelisk{
       return request_params_;
     }
 
-    std::string param(const std::string& name){
+      sahara::string param(const sahara::string& name){
       return request_params_.get(name);
     }
 
-    std::vector<std::string> paramv(const std::string& name) {
+    std::vector<sahara::string> paramv(const sahara::string& name) {
       return request_params_.get_all(name);
     }
     http_request() = default;
   protected:
     unsigned int version_;
-    std::string target_path_;
+      sahara::string target_path_;
     bool is_upgrade_ : 1 = false;
     bool keep_alive_ : 1 = false;
     http_header headers_;
-    std::unordered_map<std::string, request_file> file_bag_;
+    std::unordered_map<sahara::string, request_file> file_bag_;
     boost::beast::http::verb method_;
 
     request_param_container request_params_;
-    std::unordered_map<std::string, std::string> route_params_;
+    std::unordered_map<sahara::string, sahara::string> route_params_;
     friend class route_item;
     friend class http_request_parser;
   };

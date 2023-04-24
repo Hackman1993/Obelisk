@@ -38,21 +38,3 @@ int main() {
 
     return 0;
 }
-
-
-
-
-//
-//int main(int argc, char* argv[])
-//{
-//  auto const address = boost::asio::ip::make_address("0.0.0.0");
-//  auto const port = static_cast<unsigned short>(82);
-//  auto const doc_root = std::make_shared<std::string>("./wwwroot");
-//  auto const threads = std::max<int>(1, 10);
-//
-//  obelisk::http_server server("0.0.0.0", 8082);
-//  server.listen("0.0.0.0", 8083);
-//  server.run(1);
-//
-//  return 0;
-//}

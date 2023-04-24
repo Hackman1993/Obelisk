@@ -12,34 +12,30 @@ namespace obelisk {
 
     class request_param_container {
     public:
-        void set(const std::string &key, const std::string &value) {
+        void set(const sahara::string &key, const sahara::string &value) {
             if (params_.contains(key) && key.ends_with("[]"))
                 params_[key].emplace_back(value);
             else {
-                std::vector<std::string> temp_{value};
+                std::vector<sahara::string> temp_{value};
                 auto result = params_.emplace(key, std::move(temp_));
             }
         }
 
-        bool contains(const std::string &name) {
+        bool contains(const sahara::string &name) {
             return params_.contains(name);
         }
 
-        bool contains(std::string_view name) {
-            return params_.contains(std::string(name));
-        }
-
-        std::string get(const std::string &name) {
+        sahara::string get(const sahara::string &name) {
             if (!name.contains(name) || params_[name].size() == 0) return {};
 
             return params_[name][0];
         }
 
-        std::vector<std::string> &get_all(const std::string &name) {
+        std::vector<sahara::string> &get_all(const sahara::string &name) {
             return params_[name];
         }
 
-        request_param_container only(const std::vector<std::string> &fields) {
+        request_param_container only(const std::vector<sahara::string> &fields) {
             request_param_container result;
             for (const auto &field: fields) {
                 if (params_.contains(field))
@@ -49,7 +45,7 @@ namespace obelisk {
         }
 
     protected:
-        std::unordered_map<std::string, std::vector<std::string>> params_;
+        std::unordered_map<sahara::string, std::vector<std::string>> params_;
     };
 
 } // obelisk

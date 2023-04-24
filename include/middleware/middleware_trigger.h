@@ -22,7 +22,7 @@ namespace obelisk{
     }
 
   protected:
-    std::string params_;
+      sahara::string params_;
     middleware_callback handler_;
   };
 }

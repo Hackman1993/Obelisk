@@ -25,7 +25,7 @@ namespace obelisk {
     }
 
   protected:
-    std::string content_;
+      sahara::string content_;
   };
 
 } // obelisk

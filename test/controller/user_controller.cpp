@@ -6,10 +6,11 @@
 #include "DB.h"
 #include "exception/http_exception.h"
 #include "cryption/scrypt_hasher.h"
+#include "exception/validation_exception.h"
 #include <boost/uuid/uuid_io.hpp>
 #include <boost/uuid/uuid_generators.hpp>
 #include <boost/format.hpp>
-#include "../model/user.h"
+
 
 namespace obelisk {
 
@@ -18,8 +19,8 @@ namespace obelisk {
                                  {"login",    {validator::required()}},
                                  {"password", {validator::required(), validator::min_length(8)}}
                          });
-        std::string username = request.param("login");
-        std::string password = request.param("password");
+        sahara::string username = request.param("login");
+        sahara::string password = request.param("password");
         auto conn = DB::get_connection<rosetta::mysql_connection>("default");
         if (!conn) throw exception::http_exception("No Database Connection Available", 200);
         auto stmt = conn->prepared_statement("select password, user_id from t_user where username = ?");
@@ -27,8 +28,8 @@ namespace obelisk {
         auto result = stmt->execute();
         if(result->count() <= 0) throw exception::validation_exception("Invalid Credential");
 
-        std::string password_hash = result->get<rosetta::string>(0, "password");
-        std::string user_id = result->get<rosetta::string>(0, "user_id");
+        sahara::string password_hash = result->get<rosetta::string>(0, "password");
+        sahara::string user_id = result->get<rosetta::string>(0, "user_id");
 
         if (result && result->count()) {
             if (!obelisk::scrypt_hasher::check(password_hash, password))
@@ -47,7 +48,7 @@ namespace obelisk {
     }
 
     std::unique_ptr<obelisk::http_response> user_controller::current(http_request &request) {
-        std::string username = request.param("login");
+        sahara::string username = request.param("login");
         auto conn = DB::get_connection<rosetta::mysql_connection>("default");
         if (!conn) throw exception::http_exception("No Database Connection Available", 200);
         auto stmt = conn->prepared_statement(
@@ -67,11 +68,8 @@ namespace obelisk {
                                  {"real_name",       {required(), min_length(1)}},
                                  {"organization_id", {required(), exists("t_organization", "organization_id")}},
                          });
-        auto usr = obelisk::orm::user::instance(request.params());
-        usr.password = obelisk::scrypt_hasher::hash(request.param("password"));
-        usr.user_id = boost::replace_all_copy(boost::uuids::to_string(boost::uuids::random_generator()()), "-", "");
-        usr.create();
-        return json_response(usr.to_json());
+
+        return nullptr;
     }
 
     std::unique_ptr<obelisk::http_response> user_controller::update(http_request &request) {
@@ -80,11 +78,8 @@ namespace obelisk {
             {"real_name",       {required(), min_length(1)}},
             {"organization_id", {required(), exists("t_organization", "organization_id")}}
         });
-        auto usr = obelisk::orm::user::instance(request.params());
-        usr.password = obelisk::scrypt_hasher::hash(request.param("password"));
-        usr.user_id = boost::replace_all_copy(boost::uuids::to_string(boost::uuids::random_generator()()), "-", "");
-        usr.create();
-        return json_response(usr.to_json());
+
+        return nullptr;
     }
 
 

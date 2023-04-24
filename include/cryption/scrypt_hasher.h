@@ -16,7 +16,7 @@ namespace obelisk {
   class scrypt_hasher {
 
   public:
-    static std::string random_salt(){
+    static sahara::string random_salt(){
       std::string salt;
       salt.resize(8);
       CryptoPP::AutoSeededRandomPool prng;
@@ -27,7 +27,7 @@ namespace obelisk {
       return salt_hex;
     }
 
-    static std::string hash(std::string_view data, std::string salt = random_salt()){
+    static sahara::string hash(std::string_view data, std::string salt = random_salt()){
 
       CryptoPP::SecByteBlock derived(64);
       CryptoPP::Scrypt scrypt;
@@ -40,9 +40,9 @@ namespace obelisk {
     }
 
     static bool check(std::string_view hashed, std::string_view data){
-      std::vector<std::string> data_split;
+      std::vector<sahara::string> data_split;
       boost::split(data_split, hashed, boost::is_any_of("$"));
-      std::string rehash = hash(data, data_split[0]);
+        sahara::string rehash = hash(data, data_split[0]);
       return hashed == rehash;
     }
 

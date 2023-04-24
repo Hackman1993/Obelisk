@@ -11,11 +11,11 @@ namespace obelisk {
     class string_min_length_validator : public validator_base{
     public:
       string_min_length_validator(std::size_t length): length_(length){}
-      void validate(const std::string &name, http_request &request) override;
+      void validate(const sahara::string &name, http_request &request) override;
     protected:
       std::size_t length_ = 0;
     public:
-      std::string error_message(std::vector<std::string> params) override;
+        sahara::string error_message(std::vector<sahara::string> params) override;
     };
 
     std::shared_ptr<string_min_length_validator> min_length(std::size_t len);

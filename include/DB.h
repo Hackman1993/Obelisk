@@ -11,13 +11,13 @@ namespace obelisk {
 
   class DB {
   public:
-    static rosetta::database_pool& make_pool(const std::string& name, std::size_t pool_size, std::string_view host, std::uint16_t port, std::string_view username, std::string_view password, std::string_view database){
+    static rosetta::database_pool& make_pool(const sahara::string& name, std::size_t pool_size, const sahara::string& host, std::uint16_t port, sahara::string& username, sahara::string& password, sahara::string& database){
       pools_.emplace(name, std::make_unique<rosetta::database_pool>(pool_size, host, port, username, password, database));
       return *pools_[name];
     }
 
     template <typename Connection>
-    static std::shared_ptr<Connection> get_connection(const std::string& name){
+    static std::shared_ptr<Connection> get_connection(const sahara::string& name){
       if(pools_.contains(name)){
         return pools_[name]->template get_connection<Connection>();
       }
@@ -25,7 +25,7 @@ namespace obelisk {
     }
 
   protected:
-    static std::unordered_map<std::string, std::unique_ptr<rosetta::database_pool>> pools_;
+    static std::unordered_map<sahara::string, std::unique_ptr<rosetta::database_pool>> pools_;
   };
 
 } // obelisk

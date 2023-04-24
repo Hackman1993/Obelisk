@@ -5,6 +5,7 @@
 #include "common/validator/required_validator.h"
 #include "exception/validation_exception.h"
 #include "common/request/http_request.h"
+#include <fmt/format.h>
 namespace obelisk::validator {
 
   void required_validator::validate(const std::string& name, http_request& request) {
@@ -13,8 +14,8 @@ namespace obelisk::validator {
     throw exception::validation_exception(error_message({ std::string(name)}));
   }
 
-  std::string required_validator::error_message(std::vector<std::string> data) {
-    return std::format("Field {} is required.", data[0]);
+    sahara::string required_validator::error_message(std::vector<std::string> data) {
+    return fmt::format("Field {} is required.", data[0]);
   }
 
   std::shared_ptr<required_validator> required() {

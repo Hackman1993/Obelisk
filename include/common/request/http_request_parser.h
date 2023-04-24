@@ -70,7 +70,7 @@ namespace obelisk {
           std::cout << "Parse_failed:" << meta_data["Content-Disposition"] << std::endl;
 
         if(block_meta_data.contains("filename")){
-          std::string file_param_name = block_meta_data["name"].get_value_or("");
+            sahara::string file_param_name = block_meta_data["name"].get_value_or("");
           std::filesystem::path tmp_dir= "./";
           std::filesystem::path original_name(block_meta_data["filename"].get_value_or(""));
           std::filesystem::path temp_filepath = tmp_dir.append(boost::uuids::to_string(boost::uuids::random_generator()()) + original_name.extension().string());
@@ -103,7 +103,7 @@ namespace obelisk {
             yield();
           }
           std::string_view block_data(boost::asio::buffer_cast<const char*>(streambuf_.data()), streambuf_.size());
-          std::string form_data(block_data.substr(0, block_data.find("\r\n--" + boundary_)));
+            sahara::string form_data(block_data.substr(0, block_data.find("\r\n--" + boundary_)));
           request_.request_params_.set(block_meta_data["name"].get_value_or(""), form_data);
           streambuf_.consume(form_data.size()+2);
           continue;
@@ -116,7 +116,7 @@ namespace obelisk {
     void on_request_impl(http::verb method, string_view method_str, string_view target, int version, error_code &ec) override{
       request_.method_ = method;
       request_.version_ = version;
-      std::string string_params;
+        sahara::string string_params;
       auto split = target.find_first_of('?');
       if(split == std::string::npos)
         request_.target_path_ = target;
@@ -134,7 +134,7 @@ namespace obelisk {
       boost::algorithm::split(params, data, boost::is_any_of("&"), boost::token_compress_on);
       for(auto &param : params){
         auto split = param.find_first_of('=');
-        std::string param_name, param_value;
+          sahara::string param_name, param_value;
         param_name = split == std::string::npos? param: param.substr(0, split);
         param_value =split == std::string::npos? "":param.substr(split+1, param.size()-1);
         param_value = sahara::coder::url_decode(param_value);
@@ -201,7 +201,7 @@ namespace obelisk {
     bool start = false;
     http_request request_;
     std::uint64_t remain_;
-    std::string boundary_;
+      sahara::string boundary_;
     boost::asio::streambuf streambuf_;
     std::unique_ptr<std::thread> worker_;
     std::unique_ptr<boost::coroutines2::coroutine<void>::pull_type> body_handle_routine_;

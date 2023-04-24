@@ -18,11 +18,11 @@ using namespace boost::asio::ip;
 namespace obelisk {
 
 
-  http_server::http_server(const std::string &address, unsigned short port) {
+  http_server::http_server(const sahara::string &address, unsigned short port) {
     listen(address, port);
   }
 
-  void http_server::listen(const std::string &address, unsigned short port) {
+  void http_server::listen(const sahara::string &address, unsigned short port) {
     try {
       std::unique_ptr<tcp::acceptor, void (*)(tcp::acceptor *)> pacceptor_(new tcp::acceptor(make_strand(ios_)), [](tcp::acceptor *pointer) {
         pointer->close();

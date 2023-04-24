@@ -4,7 +4,7 @@
 
 #ifndef OBELISK_VALIDATOR_BASE_H
 #define OBELISK_VALIDATOR_BASE_H
-#include <string>
+#include "string/string.h"
 #include <vector>
 #include <utility>
 #include <memory>
@@ -15,12 +15,12 @@ namespace obelisk{
 
     class validator_base {
     public:
-      virtual void validate(const std::string& name, http_request& request) = 0;
-      virtual std::string error_message(std::vector<std::string> params) = 0;
+      virtual void validate(const sahara::string& name, http_request& request) = 0;
+      virtual sahara::string error_message(std::vector<sahara::string> params) = 0;
     };
 
     struct validator_group{
-      std::string name_;
+        sahara::string name_;
       std::vector<std::shared_ptr<validator_base>> validators_;
     };
   }

@@ -3,5 +3,5 @@
 //
 #include "DB.h"
 namespace obelisk {
-  std::unordered_map<std::string, std::unique_ptr<rosetta::database_pool>> DB::pools_;
+  std::unordered_map<sahara::string, std::unique_ptr<rosetta::database_pool>> DB::pools_;
 }
