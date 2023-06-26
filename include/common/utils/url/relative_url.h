@@ -7,12 +7,14 @@
 
 #include <string_view>
 #include <vector>
+#include "string/string.h"
+
 
 namespace obelisk {
   namespace utils {
 
     struct relative_url {
-      static std::vector<std::string> split(std::string_view url);
+      static std::vector<sahara::string> split(const sahara::string& url);
     };
 
   } // obelisk

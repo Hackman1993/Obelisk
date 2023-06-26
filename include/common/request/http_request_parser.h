@@ -76,7 +76,7 @@ namespace obelisk {
           std::filesystem::path temp_filepath = tmp_dir.append(boost::uuids::to_string(boost::uuids::random_generator()()) + original_name.extension().string());
           std::fstream stream(temp_filepath, std::ios::binary|std::ios::out);
 
-          while(!std::string_view(boost::asio::buffer_cast<const char*>(streambuf_.data()), streambuf_.size()).contains("\r\n--" + boundary_))
+          while(!std::string_view(boost::asio::buffer_cast<const char*>(streambuf_.data()), streambuf_.size()).contains("\r\n--" + boundary_.to_std()))
           {
             std::string_view buffer_scope(boost::asio::buffer_cast<const char*>(streambuf_.data()), streambuf_.size());
             std::string_view data_range;
@@ -91,19 +91,19 @@ namespace obelisk {
           }
           // Write Tail Data
           std::string_view tail_data(boost::asio::buffer_cast<const char*>(streambuf_.data()), streambuf_.size());
-          std::string_view file_tail = tail_data.substr(0, tail_data.find("\r\n--" + boundary_));
+          std::string_view file_tail = tail_data.substr(0, tail_data.find("\r\n--" + boundary_.to_std()));
           stream.write(file_tail.data(), file_tail.size());
           streambuf_.consume(file_tail.size() + 2);
           stream.flush();
           stream.close();
           continue;
         }else{
-          while(!std::string_view(boost::asio::buffer_cast<const char*>(streambuf_.data()), streambuf_.size()).contains("\r\n--" + boundary_))
+          while(!std::string_view(boost::asio::buffer_cast<const char*>(streambuf_.data()), streambuf_.size()).contains("\r\n--" + boundary_.to_std()))
           {
             yield();
           }
           std::string_view block_data(boost::asio::buffer_cast<const char*>(streambuf_.data()), streambuf_.size());
-            sahara::string form_data(block_data.substr(0, block_data.find("\r\n--" + boundary_)));
+          sahara::string form_data(block_data.substr(0, block_data.find("\r\n--" + boundary_.to_std())));
           request_.request_params_.set(block_meta_data["name"].get_value_or(""), form_data);
           streambuf_.consume(form_data.size()+2);
           continue;
@@ -123,7 +123,7 @@ namespace obelisk {
       else{
         request_.target_path_ = target.substr(0, split);
         string_params = target.substr(split+1, target.size()-1);
-        parse_query_item(string_params);
+        parse_query_item(string_params.to_std());
       }
     };
 
@@ -154,11 +154,11 @@ namespace obelisk {
         if(iter)
           boundary_ = value.substr(std::distance(value.begin(), iter.begin()) + boundary_str.length());
       }
-      request_.headers_.emplace(name, value);
+      request_.headers_.emplace(sahara::string(name), sahara::string(value));
     };
 
     void on_header_impl(error_code &ec) override{
-      if(request_.headers_.contains("connection") && boost::iequals(request_.headers_["connection"],"keep-alive"))
+      if(request_.headers_.contains("connection") && request_.headers_["connection"].iequals("keep-alive"))
         request_.keep_alive_ = true;
     };
 

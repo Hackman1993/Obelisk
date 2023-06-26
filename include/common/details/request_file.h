@@ -8,9 +8,9 @@
 
 namespace obelisk {
   struct request_file {
-      sahara::string original_name;
-      sahara::string temp_file_path;
-      sahara::string content_type;
+      sahara::string original_name_;
+      sahara::string temp_file_path_;
+      sahara::string content_type_;
   };
 
 } // obelisk

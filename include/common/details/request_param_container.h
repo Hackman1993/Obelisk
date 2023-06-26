@@ -45,7 +45,7 @@ namespace obelisk {
         }
 
     protected:
-        std::unordered_map<sahara::string, std::vector<std::string>> params_;
+        std::unordered_map<sahara::string, std::vector<sahara::string>> params_;
     };
 
 } // obelisk

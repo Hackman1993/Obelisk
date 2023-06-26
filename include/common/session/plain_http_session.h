@@ -108,9 +108,9 @@ namespace obelisk{
         auto result = server_.router().handle(req);
         if(result) return *result;
       }catch (exception::http_exception& e){
-          sahara::string error = fmt::format("Server Error: {}", e.what());
-          sahara::string data = fmt::format("{{ \"code\": \"{}\", \"message\": \"{}\", \"data\": null}}", e.code(), e.what());
-        return string_response(e.code(), data, req.version());
+          sahara::string error = fmt::format("Server Error: {}", e.message());
+          sahara::string data = fmt::format("{{ \"code\": \"{}\", \"message\": \"{}\", \"data\": null}}", e.code(), e.message());
+        return string_response(e.code(), data.to_std(), req.version());
       } catch (std::exception& e){
         return string_response(500, e.what(), req.version());
       }

@@ -10,7 +10,7 @@ namespace obelisk::validator {
 
   class exists_validator : public validator_base {
   public:
-    exists_validator(std::string_view table, std::string_view field): table_(table), field_(field){}
+    exists_validator(const sahara::string& table, const sahara::string& field): table_(table), field_(field){}
     void validate(const sahara::string &name, http_request &request) override;
 
       sahara::string error_message(std::vector<sahara::string> params) override;
@@ -20,7 +20,7 @@ namespace obelisk::validator {
       sahara::string field_;
   };
 
-  std::shared_ptr<exists_validator> exists(std::string_view table, std::string_view field);
+  std::shared_ptr<exists_validator> exists(const sahara::string& table, const sahara::string& field);
 
 } // obelisk
 

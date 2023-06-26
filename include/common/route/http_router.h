@@ -11,27 +11,27 @@
 #include <iostream>
 #include "common/response/http_response.h"
 #include "common/request/http_request.h"
-
-
 #include "exception/system_exception.h"
-#include "common/response/string_response.h"
-#include "common/response/empty_response.h"
 #include "route_item.h"
 #include "../utils/url/relative_url.h"
 
 namespace obelisk {
   class http_router {
   public:
+
+      std::unique_ptr<http_response> prehandle(http_request& request){
+          return nullptr;
+      }
     std::unique_ptr<http_response> handle(http_request& request){
-      std::vector<std::string> split_path = obelisk::utils::relative_url::split(request.target_path());
+      std::vector<sahara::string> split_path = request.target_path().split("/");
       auto method = request.method();
       for(auto &item : routers_){
         if(! item.match(split_path)) continue;
-        if(method == boost::beast::http::verb::options || method == boost::beast::http::verb::head){
-          return std::make_unique<empty_response>();
+        if(method.iequals("OPTION") || method.iequals("HEAD")){
+          return nullptr;//std::make_unique<empty_response>();
         }
         if(!item.method_allowed(method))
-          return std::make_unique<string_response>(405, "Method Not Allowed!");
+          return nullptr;//std::make_unique<string_response>(405, "Method Not Allowed!");
 
         for(auto & middleware: item.get_middlewares()){
           auto resp = middleware.handle(request);
@@ -43,7 +43,7 @@ namespace obelisk {
       return nullptr;
     }
 
-    route_item& add_router(std::string_view path,const std::function<std::unique_ptr<http_response>(http_request&)>& handler){
+    route_item& add_router(const sahara::string& path,const std::function<std::unique_ptr<http_response>(http_request&)>& handler){
       return routers_.emplace_back(path, handler);
     }
   protected:

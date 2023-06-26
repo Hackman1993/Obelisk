@@ -8,7 +8,7 @@
 namespace obelisk{
   class exception_base : private std::exception{
   public:
-    virtual sahara::string& message() const noexcept override{
+    virtual const sahara::string& message() const noexcept{
       return message_;
     }
 

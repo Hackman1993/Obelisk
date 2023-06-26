@@ -13,25 +13,25 @@ namespace obelisk::validator {
 
     class unique_validator : public validator_base {
     public:
-        unique_validator(std::string_view table, std::string_view field, std::string_view except_field = "",
+        unique_validator(const sahara::string& table, const sahara::string& field, const sahara::string& except_field = "",
                          const sahara::string &except_value_ = "") : table_(table), field_(field),
                                                                   except_field_(except_field), except_value_(
                         except_value_.empty() ? "" : "'" + except_value_ + "'") {}
 
-        unique_validator(std::string_view table, std::string_view field, std::string_view except_field,
+        unique_validator(const sahara::string& table, const sahara::string& field, const sahara::string& except_field,
                          std::uint32_t except_value_) : table_(table), field_(field), except_field_(except_field),
                                                         except_value_(
                                                                 boost::lexical_cast<std::string>(except_value_)) {}
 
-        unique_validator(std::string_view table, std::string_view field, std::string_view except_field,
+        unique_validator(const sahara::string& table, const sahara::string& field, const sahara::string& except_field,
                          std::int32_t except_value_) : table_(table), field_(field), except_field_(except_field),
                                                        except_value_(boost::lexical_cast<std::string>(except_value_)) {}
 
-        unique_validator(std::string_view table, std::string_view field, std::string_view except_field,
+        unique_validator(const sahara::string& table, const sahara::string& field, const sahara::string& except_field,
                          std::int64_t except_value_) : table_(table), field_(field), except_field_(except_field),
                                                        except_value_(boost::lexical_cast<std::string>(except_value_)) {}
 
-        unique_validator(std::string_view table, std::string_view field, std::string_view except_field,
+        unique_validator(const sahara::string& table, const sahara::string& field, const sahara::string& except_field,
                          std::uint64_t except_value_) : table_(table), field_(field), except_field_(except_field),
                                                         except_value_(
                                                                 boost::lexical_cast<std::string>(except_value_)) {}
@@ -47,11 +47,11 @@ namespace obelisk::validator {
         sahara::string except_value_;
     };
 
-    std::shared_ptr<unique_validator> unique(std::string_view table, std::string_view field);
+    std::shared_ptr<unique_validator> unique(const sahara::string& table, const sahara::string& field);
 
     template<typename T>
     std::shared_ptr<unique_validator>
-    unique(sahara::string& table, sahara::string& field, sahara::string& except_field, T except_value) {
+    unique(const sahara::string& table, const sahara::string& field, const sahara::string& except_field, T except_value) {
         return std::make_shared<unique_validator>(table, field, except_field, except_value);
     };
 }

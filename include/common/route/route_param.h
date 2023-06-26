@@ -14,7 +14,7 @@ namespace obelisk {
   using namespace boost::spirit::x3;
 
   struct router_param {
-      sahara::string name_;
+      std::string name_;
     bool static_ = false;
   };
 

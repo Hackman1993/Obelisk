@@ -23,72 +23,25 @@ namespace obelisk {
   class route_item {
 
   public:
+    route_item(const sahara::string& path, std::function<std::unique_ptr<http_response>(http_request&)>  handler);
 
-    route_item(std::string_view path, std::function<std::unique_ptr<http_response>(http_request&)>  handler): handler_(std::move(handler)){
-      std::vector<std::string> splited = obelisk::utils::relative_url::split(path);
-      auto router_param_parser = rule<class route_parser,router_param>{"RouterParam"} = (("{" > (+~char_("{}/") >> attr(false)) >  "}")|(+~char_("/") >> attr(true))) ;
-      for(auto &item: splited){
-        router_param param;
-        if(!boost::spirit::x3::parse(item.begin(), item.end(), router_param_parser, param)){
-          throw exception::system_exception(std::string("Router Parse Failed; Route: ").append(path));
-        }
-        params_.emplace_back(std::move(param));
-      }
-    }
-
-    bool match(std::vector<std::string>& split){
-      if(any_match_) return true;
-      if(split.size()!= params_.size()) return false;
-
-      for(int i = 0; i< params_.size(); i++)
-        if(params_[i].static_ && params_[i].name_ != split[i]) return false;
-      return true;
-    }
-
-    route_item& add_method(boost::beast::http::verb verb){
-      available_method_.emplace(verb, true);
-      return *this;
-    }
-
-    bool method_allowed(boost::beast::http::verb verb);
-
-
-    std::unordered_map<std::string,std::string> parse(std::vector<std::string>& split){
-      if(any_match_) return {};
-
-      std::unordered_map<std::string, std::string> result;
-      for(int i = 0; i< params_.size(); i++)
-        if(!params_[i].static_) result.emplace(params_[i].name_, split[i]);
-      return std::move(result);
-    }
-
-    std::unique_ptr<http_response> handle(http_request& request, std::vector<std::string>& split){
-      request.route_params_ = parse(split);
-      if(handler_)
-        return std::move(handler_(request));
-      else return nullptr;
-    }
-
-
-    route_item& middleware(std::string_view params, middleware_callback trigger){
-      middlewares_.emplace_back(params, std::move(trigger));
-      return *this;
-    }
-
-    std::vector<middleware_trigger>& get_middlewares()
-    {
-      return middlewares_;
-    }
+    bool match(std::vector<sahara::string>& split);
+    bool method_allowed(const sahara::string& method);
+    std::vector<middleware_trigger>& get_middlewares();
+    route_item& add_method(const sahara::string& method);
+    route_item& middleware(const sahara::string& params, middleware_callback trigger);
+    std::unordered_map<sahara::string,sahara::string> parse(std::vector<sahara::string>& split);
+    std::unique_ptr<http_response> handle(http_request& request, std::vector<sahara::string>& split);
 
 
   protected:
     std::regex address_;
+    bool any_match_ = false;
     std::vector<router_param> params_;
     std::vector<std::string> const_str_;
-    std::unordered_map<boost::beast::http::verb, bool> available_method_;
-    std::function<std::unique_ptr<http_response>(http_request&)> handler_;
     std::vector<middleware_trigger> middlewares_;
-    bool any_match_ = false;
+    std::unordered_map<sahara::string, bool> available_method_;
+    std::function<std::unique_ptr<http_response>(http_request&)> handler_;
   };
 
 } // obelisk

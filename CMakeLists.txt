@@ -11,6 +11,7 @@ set(CMAKE_CXX_STANDARD 23)
 find_package(Boost REQUIRED COMPONENTS unit_test_framework fiber url thread json locale)
 find_package(OpenSSL REQUIRED)
 find_package(cryptopp CONFIG REQUIRED)
+find_package(fmt CONFIG REQUIRED)
 
 include_directories(${Boost_INCLUDE_DIRS})
 include_directories(include)
@@ -25,19 +26,17 @@ elseif (${CMAKE_BUILD_TYPE} MATCHES Release)
     link_directories(D:/Workspace/Cpp/Rosetta/cmake-build-release)
     link_directories(D:/Workspace/Cpp/libsahara/cmake-build-release)
 endif()
-
-add_definitions(${__cpp_impl_coroutine})
 add_library(obelisk ${CPP_HEADERS} ${CPP_SOURCES})
 target_link_libraries(obelisk PRIVATE
         OpenSSL::SSL OpenSSL::Crypto Boost::fiber
-        Boost::url Boost::thread
-        mysqlcppconn libsahara rosetta)
+        Boost::url Boost::thread Boost::locale
+        mysqlcppconn sahara ws2_32 Mswsock bcrypt ws2_32)
 #target_compile_options(obelisk PRIVATE $<$<CXX_COMPILER_ID:MSVC>:/bigobj>> $<$<CXX_COMPILER_ID:GNU>:-Wa -std=c++20>)
-target_compile_features(obelisk PUBLIC cxx_std_20)
+#target_compile_features(obelisk PUBLIC cxx_std_20)
 
 file(GLOB_RECURSE TEST_HEADERS test/*.h test/*.hpp)
 file(GLOB_RECURSE TEST_SOURCES test/*.cpp test/*.cc)
 add_executable(obelisk_test ${TEST_HEADERS} ${TEST_SOURCES} )
-target_link_libraries(obelisk_test PRIVATE obelisk cryptopp::cryptopp rosetta Boost::json Boost::locale libsahara )
+target_link_libraries(obelisk_test PRIVATE ws2_32 obelisk ws2_32 cryptopp::cryptopp Boost::json Boost::locale sahara fmt::fmt)
 
 
