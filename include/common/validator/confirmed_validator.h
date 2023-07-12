@@ -13,9 +13,7 @@ namespace obelisk {
     class confirmed_validator : public validator_base{
 
     public:
-      void validate(const sahara::string &name, http_request &request) override;
-
-        sahara::string error_message(std::vector<sahara::string> params) override;
+      void validate(const std::string &name, http_request &request) override;
     };
 
     std::shared_ptr<confirmed_validator> confirmed();

@@ -6,14 +6,12 @@
 #define OBELISK_HTTP_ROUTER_H
 
 #include <unordered_map>
-#include <boost/beast.hpp>
 #include <regex>
 #include <iostream>
 #include "common/response/http_response.h"
 #include "common/request/http_request.h"
 #include "exception/system_exception.h"
 #include "route_item.h"
-#include "../utils/url/relative_url.h"
 
 namespace obelisk {
   class http_router {
@@ -23,7 +21,7 @@ namespace obelisk {
           return nullptr;
       }
     std::unique_ptr<http_response> handle(http_request& request){
-      std::vector<sahara::string> split_path = request.target_path().split("/");
+      std::vector<sahara::string> split_path = request.path().split("/");
       auto method = request.method();
       for(auto &item : routers_){
         if(! item.match(split_path)) continue;
@@ -44,7 +42,7 @@ namespace obelisk {
     }
 
     route_item& add_router(const sahara::string& path,const std::function<std::unique_ptr<http_response>(http_request&)>& handler){
-      return routers_.emplace_back(path, handler);
+        return routers_.emplace_back(path, handler);
     }
   protected:
     std::vector<route_item> routers_;

@@ -1,23 +1,25 @@
 //
-// Created by Hackman.Lo on 3/9/2023.
+// Created by Hackman.Lo on 6/29/2023.
 //
 
-#ifndef OBELISK_HTTP_EXCEPTION_H
-#define OBELISK_HTTP_EXCEPTION_H
-
+#ifndef LIBRARYORGANIZED_HTTP_EXCEPTION_H
+#define LIBRARYORGANIZED_HTTP_EXCEPTION_H
 
 #include "exception_base.h"
-
 namespace obelisk::exception {
-  class http_exception: public exception_base{
-  public:
-    http_exception(const std::string& what, std::size_t code = 500): exception_base(what), code_(code){};
-    std::size_t code() { return code_; }
-  protected:
-    std::size_t code_;
 
-  };
-}
+    class http_exception: public exception_base {
+    public:
+        http_exception(unsigned int respcode, const std::string &message) : exception_base(message), code_(respcode) {}
 
+        std::uint32_t code(){
+            return code_;
+        };
 
-#endif //OBELISK_HTTP_EXCEPTION_H
+    protected:
+        std::uint32_t code_;
+    };
+
+} // sahara
+
+#endif //LIBRARYORGANIZED_HTTP_EXCEPTION_H

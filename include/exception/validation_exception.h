@@ -9,8 +9,7 @@ namespace obelisk::exception {
 
   class validation_exception : public http_exception{
   public:
-    explicit validation_exception(const std::string& what, std::size_t code = 401) : http_exception(what, code){}
-
+    explicit validation_exception(const std::string& what, std::size_t code = 401) : http_exception(code,what){}
   };
 
 } // obelisk

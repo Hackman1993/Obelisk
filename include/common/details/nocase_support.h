@@ -1,12 +1,12 @@
-//
-// Created by Hackman.Lo on 3/22/2023.
-//
+/**
+ * @file  nocase_support.h
+ */
 
 #ifndef OBELISK_NOCASE_SUPPORT_H
 #define OBELISK_NOCASE_SUPPORT_H
 #include <boost/functional/hash.hpp>
 #include <boost/algorithm/string.hpp>
-#include <string/string.h>
+#include <sahara/string/string.h>
 namespace obelisk{
   struct no_case_equal{
     bool operator()(const sahara::string& s1, const sahara::string& s2) const{

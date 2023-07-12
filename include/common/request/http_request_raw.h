@@ -7,37 +7,30 @@
 
 #include <string>
 #include <unordered_map>
-#include "string/string.h"
+#include <sahara/string/string.h>
 #include "common/details/request_file.h"
 #include "common/details/request_param_container.h"
 #include "common/details/http_header.h"
+#include <boost/fusion/include/adapt_struct.hpp>
+#include <boost/fusion/include/io.hpp>
+
 
 namespace obelisk {
-  struct iequal {
-    bool operator()(const sahara::string &s1, const sahara::string &s2) const;
-  };
+    struct http_request_header_begin_io {
+        std::string method_;
+        std::string target_;
+        std::string protocol_;
+    };
 
-  struct ihash {
-    std::size_t operator()(const sahara::string &key) const;
-  };
+    struct http_pair_data_io {
+        std::string key_;
+        std::string value_;
+    };
 
-  struct http_request_raw {
-    sahara::string method_;
-    sahara::string path_;
-    sahara::string version_;
-    sahara::string boundary_;
-    sahara::string host_;
-    sahara::string accept_;
-    sahara::string target_;
-    bool keep_alive_: 1;
-    std::size_t content_length_;
-    std::size_t bytes_remains_;
-    std::size_t maximum_body_size_ = 2048000;
-    http_header headers_;
-    std::unordered_map<sahara::string, request_file> file_bag_;
-    request_param_container request_params_;
-  };
-
+    struct http_package_header_io {
+        http_request_header_begin_io mat_;
+        std::vector<http_pair_data_io> headers_;
+    };
 } // obelisk
 
 #endif //LIBRARYORGANIZED_HTTP_REQUEST_RAW_H

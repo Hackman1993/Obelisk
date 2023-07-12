@@ -9,6 +9,7 @@ namespace obelisk{
     std::vector<sahara::string> splited = path.split("/");
     auto router_param_parser = rule<class route_parser,router_param>{"RouterParam"} = (("{" > (+~char_("{}/") >> attr(false)) >  "}")|(+~char_("/") >> attr(true))) ;
     for(auto &item: splited){
+      if(item.empty()) continue;
       router_param param;
       std::string actual_data = item.to_std();
       if(!boost::spirit::x3::parse(actual_data.begin(), actual_data.end(), router_param_parser, param)){

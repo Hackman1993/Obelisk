@@ -4,13 +4,17 @@
 
 #ifndef OBELISK_REQUEST_FILE_H
 #define OBELISK_REQUEST_FILE_H
-#include "string/string.h"
-
+#include <sahara/string/string.h>
+#include <filesystem>
 namespace obelisk {
   struct request_file {
       sahara::string original_name_;
       sahara::string temp_file_path_;
       sahara::string content_type_;
+      ~request_file(){
+        if(std::filesystem::exists(std::filesystem::path(temp_file_path_.to_std())))
+          std::filesystem::remove(temp_file_path_.to_std());
+      }
   };
 
 } // obelisk

@@ -14,55 +14,68 @@
 #include "http_request_raw.h"
 
 namespace obelisk {
-  class http_request {
-  public:
-    http_request(http_request_raw raw) : raw_(std::move(raw)) {}
-    void validate(std::vector<validator::validator_group> validators) {
-      for (auto &i: validators) {
-        for (auto &j: i.validators_) {
-          j->validate(i.name_, *this);
+
+    class http_session;
+    class http_request {
+    public:
+        void validate(const std::vector<validator::validator_group>& validators) {
+            for (auto &i: validators) {
+                for (auto &j: i.validators_) {
+                    j->validate(i.name_, *this);
+                }
+            }
         }
-      }
-    }
 
-    const sahara::string& method() const {
-      return raw_.method_;
-    }
+        const sahara::string &method() const {
+            return method_;
+        }
 
-    const sahara::string &target_path() const {
-      return raw_.target_;
-    }
+        const sahara::string &path() const {
+            return path_;
+        }
 
-    std::unordered_map<sahara::string, sahara::string> &route_params() {
-      return route_params_;
-    }
+        std::unordered_map<sahara::string, sahara::string> &route_params() {
+            return route_params_;
+        }
 
-    http_header &header() {
-      return raw_.headers_;
-    }
+        std::unordered_map<sahara::string, sahara::string> &header() {
+            return headers_;
+        }
 
-    request_param_container &params() {
-      return raw_.request_params_;
-    }
+        request_param_container &params() {
+            return request_params_;
+        }
 
-    sahara::string param(const sahara::string &name) {
-      return raw_.request_params_.get(name);
-    }
+        sahara::string param(const sahara::string &name) {
+            return request_params_.get(name);
+        }
 
-    std::vector<sahara::string> paramv(const sahara::string &name) {
-      return raw_.request_params_.get_all(name);
-    }
+        std::vector<sahara::string> paramv(const sahara::string &name) {
+            return request_params_.get_all(name);
+        }
 
-    http_request() = default;
+        std::size_t content_length()
+        {
+            return content_length_;
+        }
 
-  protected:
-    http_request_raw raw_;
-    std::unordered_map<sahara::string, sahara::string> route_params_;
+        http_request() = default;
 
-    friend class route_item;
+    protected:
+        sahara::string method_;
+        sahara::string target_;
+        sahara::string path_;
+        sahara::string protocol_;
+        std::size_t content_length_ = 0;
+        std::streamsize bytes_remain_ = 0;
+        request_param_container request_params_;
+        std::unordered_map<sahara::string, request_file> file_bag_;
+        std::unordered_map<sahara::string, sahara::string> headers_;
+        std::unordered_map<sahara::string, sahara::string> route_params_;
 
-    friend class http_request_parser;
-  };
+        friend class route_item;
+        friend class http_session;
+    };
 }
 
 
