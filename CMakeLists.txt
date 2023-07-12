@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.21)
 project(obelisk)
+set(VERSION 1.0.0)
 file(GLOB_RECURSE CPP_HEADERS include/*.h include/*.hpp)
 file(GLOB_RECURSE CPP_SOURCES source/*.cpp source/*.cc)
 
@@ -18,7 +19,7 @@ configure_package_config_file(cmake/template/obelisk.in.cmake
         INSTALL_DESTINATION ./)
 write_basic_package_version_file(
         ${PROJECT_NAME}-config-version.cmake
-        VERSION ${SAHARA_VERSION}
+        VERSION ${VERSION}
         COMPATIBILITY ExactVersion)
 
 install(FILES
