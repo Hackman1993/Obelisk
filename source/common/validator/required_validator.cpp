@@ -1,6 +1,7 @@
 #include "common/validator/required_validator.h"
 #include <memory>
 #include "common/request/http_request.h"
+#include "exception/http_exception.h"
 namespace obelisk::validator {
     std::shared_ptr<required_validator> required() {
         return std::make_shared<required_validator>();
