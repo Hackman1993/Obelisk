@@ -4,7 +4,7 @@ include(CMakeFindDependencyMacro)
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR})
 
 #find_dependency(Boost REQUIRED COMPONENTS locale)
-#find_dependency(fmt REQUIRED)
+find_dependency(sahara REQUIRED)
 
 include(${CMAKE_CURRENT_LIST_DIR}/obelisk-targets.cmake)
 if(@Boost_FOUND@)
