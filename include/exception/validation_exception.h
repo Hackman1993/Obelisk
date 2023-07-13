@@ -4,7 +4,7 @@
 
 #ifndef OBELISK_VALIDATION_EXCEPTION_H
 #define OBELISK_VALIDATION_EXCEPTION_H
-#include "exception/http_exception.h"
+#include "http_exception.h"
 namespace obelisk::exception {
 
   class validation_exception : public http_exception{
