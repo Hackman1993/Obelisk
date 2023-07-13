@@ -14,7 +14,7 @@ find_package(sahara REQUIRED)
 add_library(${PROJECT_NAME} ${CPP_HEADERS} ${CPP_SOURCES} )
 target_include_directories(${PROJECT_NAME} PRIVATE include)
 target_include_directories(${PROJECT_NAME} PRIVATE ${Boost_INCLUDE_DIRS})
-target_link_libraries(${PROJECT_NAME} PRIVATE sahara::sahara)
+target_link_libraries(${PROJECT_NAME} PRIVATE sahara::sahara Boost::json)
 
 configure_package_config_file(cmake/template/obelisk.in.cmake
         ${PROJECT_NAME}-config.cmake
