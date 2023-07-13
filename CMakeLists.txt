@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 3.21)
 project(obelisk)
 set(VERSION 1.0.0)
+include(CMakePackageConfigHelpers)
 file(GLOB_RECURSE CPP_HEADERS include/*.h include/*.hpp)
 file(GLOB_RECURSE CPP_SOURCES source/*.cpp source/*.cc)
 
@@ -11,7 +12,7 @@ find_package(fmt CONFIG REQUIRED)
 find_package(sahara REQUIRED)
 
 add_library(${PROJECT_NAME} ${CPP_HEADERS} ${CPP_SOURCES} )
-target_include_directories(${PROJECT_NAME} PUBLIC include)
+target_include_directories(${PROJECT_NAME} PRIVATE include)
 target_include_directories(${PROJECT_NAME} PRIVATE ${Boost_INCLUDE_DIRS})
 
 configure_package_config_file(cmake/template/obelisk.in.cmake
