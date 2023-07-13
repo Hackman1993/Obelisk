@@ -5,10 +5,10 @@
 #ifndef OBELISK_HTTP_REQUEST_H
 #define OBELISK_HTTP_REQUEST_H
 
-#include "common/details/request_file.h"
-#include "common/details/request_param_container.h"
-#include "common/details/nocase_support.h"
-#include "common/details/http_header.h"
+#include "../details/request_file.h"
+#include "../details/request_param_container.h"
+#include "../details/nocase_support.h"
+#include "../details/http_header.h"
 #include <initializer_list>
 #include "../validator/validator_base.h"
 #include "http_request_raw.h"

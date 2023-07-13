@@ -7,8 +7,8 @@
 
 #include <iostream>
 #include <boost/asio.hpp>
-#include "exception/http_exception.h"
-#include "common/request/http_request.h"
+#include "../../exception/http_exception.h"
+#include "../request/http_request.h"
 
 using namespace std::chrono_literals;
 namespace obelisk {

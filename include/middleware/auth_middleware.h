@@ -6,7 +6,6 @@
 #define OBELISK_AUTH_MIDDLEWARE_H
 
 #include <memory>
-//#include "../DB.h"
 #include "../common/request/http_request.h"
 #include "../exception/http_exception.h"
 

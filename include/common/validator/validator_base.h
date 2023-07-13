@@ -5,10 +5,8 @@
 #ifndef OBELISK_VALIDATOR_BASE_H
 #define OBELISK_VALIDATOR_BASE_H
 
-#include <sahara/string/string.h>
-#include <vector>
-#include <utility>
 #include <memory>
+#include <sahara/string/string.h>
 
 namespace obelisk {
     class http_request;

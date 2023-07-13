@@ -5,7 +5,7 @@
 #ifndef OBELISK_CONFIRMED_VALIDATOR_H
 #define OBELISK_CONFIRMED_VALIDATOR_H
 #include "validator_base.h"
-#include "string/string.h"
+#include <sahara/string/string.h>
 
 namespace obelisk {
   namespace validator {

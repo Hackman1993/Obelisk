@@ -8,9 +8,9 @@
 #include <unordered_map>
 #include <regex>
 #include <iostream>
-#include "common/response/http_response.h"
-#include "common/request/http_request.h"
-#include "exception/system_exception.h"
+#include "../response/http_response.h"
+#include "../request/http_request.h"
+#include "../../exception/system_exception.h"
 #include "route_item.h"
 
 namespace obelisk {

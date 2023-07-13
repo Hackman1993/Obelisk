@@ -8,9 +8,9 @@
 #include <string>
 #include <unordered_map>
 #include <sahara/string/string.h>
-#include "common/details/request_file.h"
-#include "common/details/request_param_container.h"
-#include "common/details/http_header.h"
+#include "../details/request_file.h"
+#include "../details/request_param_container.h"
+#include "../details/http_header.h"
 #include <boost/fusion/include/adapt_struct.hpp>
 #include <boost/fusion/include/io.hpp>
 

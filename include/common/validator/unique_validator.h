@@ -4,8 +4,6 @@
 
 #ifndef OBELISK_UNIQUE_VALIDATOR_H
 #define OBELISK_UNIQUE_VALIDATOR_H
-
-#include <string>
 #include "validator_base.h"
 #include <boost/lexical_cast.hpp>
 

@@ -6,7 +6,7 @@
 #define OBELISK_HTTP_RESPONSE_H
 
 #include <boost/asio/ip/tcp.hpp>
-#include "common/details/http_header.h"
+#include "../details/http_header.h"
 namespace obelisk {
     class http_session;
 

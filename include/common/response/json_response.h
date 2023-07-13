@@ -6,7 +6,7 @@
 #define LIBRARYORGANIZED_JSON_RESPONSE_H
 
 #include "http_response.h"
-#include "boost/json.hpp"
+#include <boost/json.hpp>
 
 namespace obelisk {
 

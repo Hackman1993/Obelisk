@@ -8,11 +8,11 @@
 #include <utility>
 #include <regex>
 #include "route_param.h"
-#include "boost/spirit/home/x3.hpp"
-#include "exception/system_exception.h"
-#include "common/response/http_response.h"
-#include "common/request/http_request.h"
-#include "middleware/middleware_trigger.h"
+#include <boost/spirit/home/x3.hpp>
+#include "../request/http_request.h"
+#include "../response/http_response.h"
+#include "../../exception/system_exception.h"
+#include "../../middleware/middleware_trigger.h"
 
 namespace obelisk {
 
