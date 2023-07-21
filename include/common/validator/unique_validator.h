@@ -14,7 +14,7 @@ namespace obelisk::validator {
         unique_validator(const std::string& table, const std::string& field, const std::string& except_field = "",
                          const sahara::string &except_value_ = "") : table_(table), field_(field),
                                                                   except_field_(except_field), except_value_(
-                        except_value_.empty() ? "" : "'" + except_value_ + "'") {}
+                        except_value_.empty() ? "" : "'" + except_value_.to_std() + "'") {}
 
         unique_validator(const std::string& table, const std::string& field, const std::string& except_field,
                          std::uint32_t except_value_) : table_(table), field_(field), except_field_(except_field),
