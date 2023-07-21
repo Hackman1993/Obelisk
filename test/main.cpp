@@ -5,18 +5,19 @@
 #include <boost/url/encode.hpp>
 
 #include "controller/user_controller.h"
-
-
+#include "database.h"
+#include <rosetta/mysql_impl/mysql_connection.h>
 int main() {
 //    obelisk::DB::make_pool("default", 10, "127.0.0.1", 3306, "root", "hl97005497--",
 //                           "obelisk").initialize<rosetta::mysql_connection>();
 //
     //std::cout << boost::url::encode(opt.data(),opt.size(),s,);
     try {
+        g_pool.initialize<rosetta::mysql_connection>();
         obelisk::http_server server("0.0.0.0", 28888);
         server.listen("0.0.0.0", 8082);
         server.route("/api/user/login", &obelisk::user_controller::get_token).add_method("POST");
-        server.run(std::thread::hardware_concurrency() + 2);
+        server.run();
     } catch (std::exception &e) {
         std::cout << e.what() << std::endl;
     }

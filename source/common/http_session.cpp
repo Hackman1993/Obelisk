@@ -386,7 +386,7 @@ namespace obelisk {
                 if(param.key_.empty() && param.value_.empty()) continue;
                 request->request_params_.set(sahara::string(param.key_).url_decode_copy(), sahara::string(param.value_).url_decode_copy());
             }
-        }
+        }else request->path_ = request->target_;
         return result;
     }
 

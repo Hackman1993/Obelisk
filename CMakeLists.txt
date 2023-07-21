@@ -11,6 +11,7 @@ find_package(Boost REQUIRED COMPONENTS url thread json fiber)
 find_package(fmt CONFIG REQUIRED)
 find_package(sahara REQUIRED)
 
+
 add_library(${PROJECT_NAME} STATIC ${CPP_HEADERS} ${CPP_SOURCES} )
 target_include_directories(${PROJECT_NAME} PRIVATE include)
 target_include_directories(${PROJECT_NAME} PRIVATE ${Boost_INCLUDE_DIRS})
@@ -41,7 +42,11 @@ install(EXPORT ${PROJECT_NAME}-targets NAMESPACE ${PROJECT_NAME}:: DESTINATION s
 #
 #file(GLOB_RECURSE TEST_HEADERS test/*.h test/*.hpp)
 #file(GLOB_RECURSE TEST_SOURCES test/*.cpp test/*.cc)
-#add_executable(obelisk_test ${TEST_HEADERS} ${TEST_SOURCES} )
-#target_link_libraries(obelisk_test PRIVATE ws2_32 obelisk ws2_32 Boost::json Boost::locale sahara fmt::fmt)
+file(GLOB_RECURSE TEST_SOURCES test/*.h test/*.hpp test/*.cpp test/*.cc)
+add_executable(${PROJECT_NAME}_test ${TEST_SOURCES} )
+find_package(sahara REQUIRED)
+find_package(rosetta REQUIRED)
+target_include_directories(${PROJECT_NAME}_test PRIVATE include)
+target_link_libraries(${PROJECT_NAME}_test PRIVATE ws2_32 obelisk ws2_32 Boost::json Boost::locale sahara::sahara rosetta::rosetta fmt::fmt)
 
 
