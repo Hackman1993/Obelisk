@@ -128,7 +128,7 @@ namespace obelisk {
             if (request->bytes_remain_ > 0) receive_http_body_(request, iostream);
             else {
                 // TODO: Handle Http Body By Content Type
-                if (request->headers_.contains("Content-Type") && request->headers_["Content-Type"] == "application/json") {
+                if (request->headers_.contains("Content-Type") && request->headers_["Content-Type"].equals("application/json")) {
                 } else if (request->headers_["Content-Type"].icontains("multipart/form-data")) {
                     parse_multipart_form_body_(iostream, request);
                 } else if (request->headers_["Content-Type"].icontains("application/x-www-form-urlencoded")) {

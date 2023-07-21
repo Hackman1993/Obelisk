@@ -28,7 +28,7 @@ namespace obelisk {
 
         void listen(const sahara::string &address, unsigned short port);
 
-        void run(unsigned int threads);
+        void run();
 
         sahara::time::time_duration &recv_timeout();
 
@@ -61,6 +61,7 @@ namespace obelisk {
     protected:
         void listen_handler_(const std::shared_ptr<boost::asio::ip::tcp::acceptor> &acceptor, boost::system::error_code ec, boost::asio::ip::tcp::socket socket);
 
+        std::uint32_t thread_count_ = 0;
         http_router router_;    // Http Router
         boost::asio::io_service ios_;   // IO Service
         std::vector<std::thread> threads_;  // Thread Pool

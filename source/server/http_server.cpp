@@ -17,6 +17,7 @@ using namespace boost::asio::ip;
 namespace obelisk {
 
     http_server::http_server(const sahara::string &address, unsigned short port, int threads) : ios_(threads) {
+        thread_count_ = threads;
         listen(address, port);
     }
 
@@ -44,13 +45,12 @@ namespace obelisk {
         }
     }
 
-    void http_server::run(unsigned int threads) {
+    void http_server::run() {
         // Bind Can only be called here
         boost::asio::signal_set signals(ios_, SIGINT, SIGTERM);
         signals.async_wait([&](boost::system::error_code const &, int) { ios_.stop(); });
-
-        threads_.reserve(threads - 1);
-        for (auto i = 0u; i < threads - 1; ++i)
+        threads_.reserve(thread_count_ - 1);
+        for (auto i = 0u; i < thread_count_ - 1; ++i)
             threads_.emplace_back([this] { ios_.run(); });
         // Run last thread in main thread
         for (auto &t: threads_) t.join();
