@@ -58,4 +58,8 @@ namespace obelisk {
 
     }
 
+    void http_response::add_header(const std::string &name, const std::string &value) {
+        headers_.emplace(name, value);
+    }
+
 }

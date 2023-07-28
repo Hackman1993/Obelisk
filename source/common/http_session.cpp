@@ -1,6 +1,7 @@
 #include <fstream>
 #include <utility>
 #include <iostream>
+#include <sahara/log/log.h>
 #include <sahara/utils/uuid.h>
 #include "server/http_server.h"
 #include "common/session/http_session.h"
@@ -24,7 +25,9 @@ namespace obelisk {
         if (socket_.is_open()) {
             try {
                 socket_.shutdown(boost::asio::ip::tcp::socket::shutdown_both);
-            } catch (std::exception &) {}
+            } catch (std::exception &e) {
+                LOG_MODULE_TRACE("obelisk", "{}", e.what());
+            }
         }
     }
 
@@ -38,6 +41,7 @@ namespace obelisk {
         try {
             socket_.async_read_some(streambuf_.prepare(10240), [this, request](const boost::system::error_code &ec, std::size_t transferred) { header_received_(ec, transferred, request); });
         } catch (std::exception &e) {
+            LOG_MODULE_WARN("obelisk", "{}", e.what());
             server_.release_connection(uuid_);
         }
     }
@@ -90,7 +94,7 @@ namespace obelisk {
                 receive_http_body_(request, iostream);
             }
         } catch (std::exception &e) {
-            std::cout << e.what() << std::endl;
+            LOG_MODULE_WARN("obelisk", "{}", e.what());
         }
     }
 
@@ -102,7 +106,7 @@ namespace obelisk {
                 http_body_received_(ec, transferred, request, iostream);
             });
         } catch (std::exception &e) {
-            std::cout << e.what() << std::endl;
+            LOG_MODULE_WARN("obelisk", "{}", e.what());
         }
 
     }
@@ -139,7 +143,7 @@ namespace obelisk {
                 handle_request_(request);
             }
         } catch (std::exception &e) {
-            std::cout << e.what() << std::endl;
+            LOG_MODULE_WARN("obelisk", "{}", e.what());
         }
 
     }
@@ -189,7 +193,7 @@ namespace obelisk {
             else
                 server_.release_connection(uuid_);
         } catch (std::exception &e) {
-            std::cout << e.what() << std::endl;
+            LOG_MODULE_WARN("obelisk", "{}", e.what());
             server_.release_connection(uuid_);
         }
     }
@@ -321,7 +325,7 @@ namespace obelisk {
                 request->file_bag_.emplace(meta_name, request_file{filename, temp_file_path, content_type});
             }
         } catch (std::exception &e) {
-            std::cout << e.what() << std::endl;
+            LOG_MODULE_WARN("obelisk", "{}", e.what());
         }
     }
 
@@ -333,7 +337,7 @@ namespace obelisk {
         if (!std::filesystem::exists(target_path) || std::filesystem::is_directory(target_path))
             return nullptr;
         if (relative_path.string().starts_with(".."))
-            throw exception::http_exception(403, "Forbidden");
+            throw exception::http_exception("Forbidden", 403);
         return std::make_shared<file_response>(relative_path.string());
     }
 

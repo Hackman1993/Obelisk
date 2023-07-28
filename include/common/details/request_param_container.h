@@ -7,16 +7,16 @@
 
 #include <string>
 #include <unordered_map>
-
+#include <rosetta/rosetta.h>
 namespace obelisk {
 
     class request_param_container {
     public:
-        void set(const sahara::string &key, const sahara::string &value) {
+        void set(const sahara::string &key, const rosetta::core::sql_param_value &value) {
             if (params_.contains(key) && key.ends_with("[]"))
                 params_[key].emplace_back(value);
             else {
-                std::vector<sahara::string> temp_{value};
+                std::vector<rosetta::core::sql_param_value> temp_{value};
                 auto result = params_.emplace(key, std::move(temp_));
             }
         }
@@ -25,13 +25,13 @@ namespace obelisk {
             return params_.contains(name);
         }
 
-        sahara::string get(const sahara::string &name) {
+        rosetta::core::sql_param_value get(const sahara::string &name) {
             if (!name.contains(name) || params_[name].size() == 0) return {};
 
             return params_[name][0];
         }
 
-        std::vector<sahara::string> &get_all(const sahara::string &name) {
+        std::vector<rosetta::core::sql_param_value> &get_all(const sahara::string &name) {
             return params_[name];
         }
 
@@ -45,7 +45,7 @@ namespace obelisk {
         }
 
     protected:
-        std::unordered_map<sahara::string, std::vector<sahara::string>> params_;
+        std::unordered_map<sahara::string, std::vector<rosetta::core::sql_param_value>> params_;
     };
 
 } // obelisk

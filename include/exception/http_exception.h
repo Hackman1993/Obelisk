@@ -10,7 +10,7 @@ namespace obelisk::exception {
 
     class http_exception: public exception_base {
     public:
-        http_exception(unsigned int respcode, const std::string &message) : exception_base(message), code_(respcode) {}
+        http_exception(const std::string &message, unsigned int respcode) : exception_base(message), code_(respcode) {}
 
         std::uint32_t code(){
             return code_;

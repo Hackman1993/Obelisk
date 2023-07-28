@@ -7,12 +7,12 @@
  */
 #include <iostream>
 #include <filesystem>
+#include <sahara/log/log.h>
 #include <sahara/utils/uuid.h>
 #include "server/http_server.h"
 #include "common/session/http_session.h"
 #include "exception/network_exception.h"
 #include "common/request/http_request_raw.h"
-
 using namespace boost::asio::ip;
 namespace obelisk {
 
@@ -41,7 +41,7 @@ namespace obelisk {
             });
             acceptors_.emplace_back(pacceptor_);
         } catch (boost::system::error_code &err) {
-            throw exception::network_exception{err.what()};
+            LOG_MODULE_WARN("obelisk", "{}", err.message());
         }
     }
 

@@ -8,40 +8,52 @@
 #include <unordered_map>
 #include <regex>
 #include <iostream>
+#include <boost/json/object.hpp>
 #include "../response/http_response.h"
 #include "../request/http_request.h"
 #include "../../exception/system_exception.h"
 #include "route_item.h"
+#include "common/response/empty_response.h"
+#include "exception/http_exception.h"
+#include "common/response/json_response.h"
 
 namespace obelisk {
   class http_router {
   public:
 
-      std::unique_ptr<http_response> prehandle(http_request& request){
+      std::shared_ptr<http_response> prehandle(http_request& request){
           return nullptr;
       }
-    std::unique_ptr<http_response> handle(http_request& request){
-      std::vector<sahara::string> split_path = request.path().split("/");
-      auto method = request.method();
+    std::shared_ptr<http_response> handle(http_request& request){
+
       for(auto &item : routers_){
-        if(! item.match(split_path)) continue;
-        if(method.iequals("OPTION") || method.iequals("HEAD")){
-          return nullptr;//std::make_unique<empty_response>();
-        }
-        if(!item.method_allowed(method))
-          return nullptr;//std::make_unique<string_response>(405, "Method Not Allowed!");
-
-        for(auto & middleware: item.get_middlewares()){
-          auto resp = middleware.handle(request);
-          if(resp) return resp;
-        }
-
-        return std::move(item.handle(request, split_path));
+          std::shared_ptr<http_response> ptr = nullptr;
+          try{
+              ptr = item.handle(request);
+          }
+          catch(exception::http_exception &e){
+              ptr = std::make_shared<json_response>(boost::json::object({{"code",    e.code()},
+                                                                              {"message", e.what()},
+                                                                              {"data",    boost::json::value()}}), e.code());
+          }
+          if (ptr) {
+              std::stringstream allow_origin;
+              bool first = true;
+              for (auto &domain: item.allow_cors()) {
+                  if (first) first = false;
+                  else allow_origin << ";";
+                  allow_origin << domain;
+              }
+              ptr->add_header("Access-Control-Allow-Origin", allow_origin.str());
+              ptr->add_header("Access-Control-Allow-Credentials", "true");
+              ptr->add_header("Access-Control-Allow-Headers", "access-control-allow-methods,access-control-allow-origin,authorization");
+              return ptr;
+          }
       }
       return nullptr;
     }
 
-    route_item& add_router(const sahara::string& path,const std::function<std::unique_ptr<http_response>(http_request&)>& handler){
+    route_item& add_router(const sahara::string& path,const std::function<std::shared_ptr<http_response>(http_request&)>& handler){
         return routers_.emplace_back(path, handler);
     }
   protected:

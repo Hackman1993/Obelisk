@@ -6,6 +6,7 @@
 #define OBELISK_PLAIN_HTTP_SESSION_H
 
 #include <iostream>
+#define BOOST_ASIO_NO_WIN32_LEAN_AND_MEAN
 #include <boost/asio.hpp>
 #include "../../exception/http_exception.h"
 #include "../request/http_request.h"

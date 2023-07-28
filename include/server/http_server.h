@@ -7,13 +7,13 @@
 
 
 #include <string>
+#define BOOST_ASIO_NO_WIN32_LEAN_AND_MEAN
 #include <boost/asio.hpp>
 #include <sahara/string/string.h>
 
 #include <boost/asio/awaitable.hpp>
 #include "../common/request/http_request_raw.h"
 #include "../middleware/middleware_trigger.h"
-#include "../middleware/auth_middleware.h"
 #include <sahara/time/time_duration.h>
 #include "../common/route/http_router.h"
 //#include "middleware/auth_middleware.h"
@@ -34,14 +34,10 @@ namespace obelisk {
 
         http_router &router() { return router_; }
 
-        route_item &route(const sahara::string &route, const std::function<std::unique_ptr<http_response>(http_request &)> &handle) {
+        route_item &route(const sahara::string &route, const std::function<std::shared_ptr<http_response>(http_request &)> &handle) {
             return router_.add_router(route, handle);
         }
 
-
-        virtual void add_default_middlewares() {
-            middlewares_.emplace_back("token_auth", &auth_middleware::handle);
-        }
 
         std::vector<middleware_trigger> &middlewares() {
             return middlewares_;
@@ -49,13 +45,7 @@ namespace obelisk {
 
     public:
         std::uint32_t header_max_length() const { return header_max_length_; }
-
         void set_header_max_length(std::uint32_t header_max_length) { header_max_length_ = header_max_length; }
-
-        std::uint32_t body_block_length() const { return body_block_length_; }
-
-        void set_body_block_length(std::uint32_t body_block_length) { body_block_length_ = body_block_length; }
-
         void release_connection(const std::string &connection_key);
 
     protected:
@@ -66,7 +56,6 @@ namespace obelisk {
         boost::asio::io_service ios_;   // IO Service
         std::vector<std::thread> threads_;  // Thread Pool
         std::uint32_t header_max_length_ = 1024;
-        std::uint32_t body_block_length_ = 1024000;
         std::vector<middleware_trigger> middlewares_;   // Middlewares
         sahara::time::time_duration recv_timeout_ = 60s;
         std::vector<std::shared_ptr<boost::asio::ip::tcp::acceptor>> acceptors_;    // 1 Service Can Listen Many Ports

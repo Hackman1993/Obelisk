@@ -7,8 +7,8 @@ namespace obelisk::validator {
     void string_min_length_validator::validate(const std::string &name, http_request &request){
         if (request.params().contains(name)) {
             auto value = request.params().get(name);
-            if (value.size() < length_) {
-                throw obelisk::exception::http_exception(200, "Param " + name + " length must be greater than " + std::to_string(length_));
+            if (value.index() == 4 && std::get<std::string>(value).length() < length_) {
+                throw obelisk::exception::http_exception("Param " + name + " length must be greater than " + std::to_string(length_), 200);
             }
         }
     }

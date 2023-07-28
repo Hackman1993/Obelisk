@@ -24,7 +24,7 @@ namespace obelisk {
         std::ifstream fstream(file_path_, std::ios::binary|std::ios::in);
         fstream.seekg(std::ios::beg);
         if(!fstream.is_open())
-            throw exception::http_exception(403, "Forbidden");
+            throw exception::http_exception("Forbidden", 403);
 
         std::string http_header_str = serialize_header();
         ret += socket.write_some(boost::asio::buffer(http_header_str));

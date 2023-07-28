@@ -46,11 +46,11 @@ namespace obelisk {
             return request_params_;
         }
 
-        sahara::string param(const sahara::string &name) {
+        rosetta::core::sql_param_value param(const sahara::string &name) {
             return request_params_.get(name);
         }
 
-        std::vector<sahara::string> paramv(const sahara::string &name) {
+        std::vector<rosetta::core::sql_param_value> paramv(const sahara::string &name) {
             return request_params_.get_all(name);
         }
 

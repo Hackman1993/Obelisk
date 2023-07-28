@@ -21,15 +21,17 @@ namespace obelisk {
   class route_item {
 
   public:
-    route_item(const sahara::string& path, std::function<std::unique_ptr<http_response>(http_request&)>  handler);
+    route_item(const sahara::string& path, std::function<std::shared_ptr<http_response>(http_request&)>  handler);
 
     bool match(std::vector<sahara::string>& split);
     bool method_allowed(const sahara::string& method);
     std::vector<middleware_trigger>& get_middlewares();
     route_item& add_method(const sahara::string& method);
     route_item& middleware(const sahara::string& params, middleware_callback trigger);
+    route_item& allow_cors(const std::string& origin);
+    std::vector<std::string>& allow_cors();
     std::unordered_map<sahara::string,sahara::string> parse(std::vector<sahara::string>& split);
-    std::unique_ptr<http_response> handle(http_request& request, std::vector<sahara::string>& split);
+    std::shared_ptr<http_response> handle(http_request& request);
 
 
   protected:
@@ -39,7 +41,8 @@ namespace obelisk {
     std::vector<std::string> const_str_;
     std::vector<middleware_trigger> middlewares_;
     std::unordered_map<sahara::string, bool> available_method_;
-    std::function<std::unique_ptr<http_response>(http_request&)> handler_;
+    std::function<std::shared_ptr<http_response>(http_request&)> handler_;
+    std::vector<std::string> allow_cros_;
   };
 
 } // obelisk

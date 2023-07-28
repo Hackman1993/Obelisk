@@ -53,6 +53,8 @@ namespace obelisk {
         virtual ~http_response() {};
         std::string serialize_header();
 
+        virtual void add_header(const std::string& name, const std::string& value);
+
         virtual std::size_t write_content(std::shared_ptr<http_session> session) ;
         static std::unordered_map<EHTTP_RESP_STATUS, std::string> resp_status_map_;
     protected:

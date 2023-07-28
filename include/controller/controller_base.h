@@ -14,7 +14,7 @@ namespace obelisk {
   class controller_base {
 
   protected:
-    static std::unique_ptr<http_response> json_response(const boost::json::value& result, std::size_t code = 200, const sahara::string& message=""){
+    static std::shared_ptr<http_response> json_response(const boost::json::value& result, std::size_t code = 200, const sahara::string& message=""){
       auto data = boost::json::object{
           {"code", code == 200? 0:code},
           {"message", message.to_std()},

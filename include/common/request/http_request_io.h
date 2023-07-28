@@ -6,6 +6,7 @@
 #define LIBRARYORGANIZED_HTTP_REQUEST_IO_H
 #include <string>
 #include <vector>
+#define BOOST_ASIO_NO_WIN32_LEAN_AND_MEAN
 #include <boost/asio.hpp>
 
 namespace obelisk {

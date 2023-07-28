@@ -87,7 +87,7 @@ namespace obelisk {
 
     std::string mime_types::lookup(const std::string& file_path) {
         if(!std::filesystem::exists(file_path) || std::filesystem::is_directory(file_path)) {
-            throw obelisk::exception::http_exception(404, "File not found");
+            throw obelisk::exception::http_exception("File not found", 404);
         }
         std::filesystem::path path(file_path);
         auto test = path.extension().string();
